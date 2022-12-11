@@ -2,6 +2,9 @@
 #define STATS_H
 
 #include <stdint.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
   uint32_t n;
@@ -49,6 +52,19 @@ typedef struct {
   float p;
 
 } uniform_t;
+
+typedef struct {
+  uint32_t a, b;
+  float p;
+
+} continuous_uniform_t;
+
+typedef struct {
+  float mu;
+  float sigma;
+
+} normal_t;
+
 
 float binomial_mean(binomial_t *b);
 float binomial_variance(binomial_t *b);
@@ -105,5 +121,21 @@ float poisson_skewness(poisson_t *p);
 float poisson_median(poisson_t *p);
 float poisson_pmf(poisson_t *p, uint32_t k);
 float poisson_cdf(poisson_t *p, uint32_t k);
+
+float continuous_uniform_mean(continuous_uniform_t *c);
+float continuous_uniform_variance(continuous_uniform_t *c);
+float continuous_uniform_stddev(continuous_uniform_t *c);
+float continuous_uniform_skewness(continuous_uniform_t *c);
+float continuous_uniform_median(continuous_uniform_t *c);
+float continuous_uniform_pmf(continuous_uniform_t *c, float k);
+float continuous_uniform_cdf(continuous_uniform_t *c, float k);
+
+float normal_mean(normal_t *n);
+float normal_variance(normal_t *n);
+float normal_stddev(normal_t *n);
+float normal_skewness(normal_t *n);
+float normal_median(normal_t *n);
+float normal_pmf(normal_t *n, float k);
+float normal_cdf(normal_t *n, float k);
 
 #endif

@@ -1,7 +1,4 @@
 #include "stats.h"
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 // Means
 
@@ -24,6 +21,12 @@ float negative_binomial_mean(negative_binomial_t *neg) {
 }
 
 float poisson_mean(poisson_t *poi) { return poi->lambda; }
+
+float continuous_uniform_mean(continuous_uniform_t *uni) {
+  return (uni->a + uni->b) / 2;
+}
+
+float normal_mean(normal_t *nor) { return nor->mu; }
 
 // Variances
 
@@ -52,6 +55,12 @@ float negative_binomial_variance(negative_binomial_t *neg) {
 
 float poisson_variance(poisson_t *poi) { return poi->lambda; }
 
+float continuous_uniform_variance(continuous_uniform_t *uni) {
+  return ((uni->b - uni->a) * (uni->b - uni->a)) / 12;
+}
+
+float normal_variance(normal_t *nor) { return nor->sigma * nor->sigma; }
+
 // Standard deviations
 
 float binomial_std_dev(binomial_t *bin) { return sqrt(binomial_variance(bin)); }
@@ -77,6 +86,12 @@ float negative_binomial_std_dev(negative_binomial_t *neg) {
 }
 
 float poisson_std_dev(poisson_t *poi) { return sqrt(poisson_variance(poi)); }
+
+float continuous_uniform_std_dev(continuous_uniform_t *uni) {
+  return sqrt(continuous_uniform_variance(uni));
+}
+
+float normal_std_dev(normal_t *nor) { return sqrt(normal_variance(nor)); }
 
 // Skewness
 
@@ -107,6 +122,12 @@ float negative_binomial_skewness(negative_binomial_t *neg) {
 
 float poisson_skewness(poisson_t *poi) { return 1 / poi->lambda; }
 
+float continuous_uniform_skewness(continuous_uniform_t *uni) {
+  return 0;
+}
+
+float normal_skewness(normal_t *nor) { return 0; }
+
 // Median
 
 float binomial_median(binomial_t *bin) { return floor(bin->n * bin->p + 0.5); }
@@ -126,6 +147,14 @@ float negative_binomial_median(negative_binomial_t *neg) {
 float hypergeometric_median(hypergeometric_t *hyp) {
   return floor((hyp->n + 1) * (hyp->K + 1) / (hyp->N + 2) + 0.5);
 }
+
+float poisson_median(poisson_t *poi) { return floor(poi->lambda + 0.5); }
+
+float continuous_uniform_median(continuous_uniform_t *uni) {
+  return (uni->a + uni->b) / 2;
+}
+
+float normal_median(normal_t *nor) { return nor->mu; }
 
 // PMF
 
@@ -177,6 +206,15 @@ float poisson_pmf(poisson_t *poi, uint32_t k) {
   return pow(poi->lambda, k) * exp(-poi->lambda) / factorial(k);
 }
 
+float continuous_uniform_pmf(continuous_uniform_t *uni, float x) {
+  return x >= uni->a && x <= uni->b ? 1 / (uni->b - uni->a) : 0;
+}
+
+float normal_pmf(normal_t *nor, float x) {
+  return exp(-pow(x - nor->mu, 2) / (2 * pow(nor->sigma, 2))) /
+         (sqrt(2 * M_PI) * nor->sigma);
+}
+
 // CDF
 
 float binomial_cdf(binomial_t *bin, uint32_t k) {
@@ -223,29 +261,34 @@ float poisson_cdf(poisson_t *poi, uint32_t k) {
   return result;
 }
 
+float continuous_uniform_cdf(continuous_uniform_t *uni, float x) {
+  return x >= uni->b ? 1 : x >= uni->a ? (x - uni->a) / (uni->b - uni->a) : 0;
+}
+
+float normal_cdf(normal_t *nor, float x) {
+  return 0.5 * (1 + erf((x - nor->mu) / (nor->sigma * sqrt(2))));
+}
+
 int main() {
   // Binomial
   binomial_t bin = {10, 0.5};
+  float res = binomial_mean(&bin);
 
   // Bernoulli
   bernoulli_t ber = {0.5};
 
   // Discrete Uniform
-  
   discrete_uniform_t dis = {1, 6};
 
   // Geometric
   geometric_t geo = {0.5};
 
   // Hypergeometric
-  
   hypergeometric_t hyp = {10, 5, 3};
 
   // Negative Binomial
-  
   negative_binomial_t neg = {10, 0.5};
 
   // Poisson
-  
   poisson_t poi = {5};
 }
