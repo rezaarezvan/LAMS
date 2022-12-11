@@ -1,19 +1,34 @@
 #ifndef LA_H
 #define LA_H
 
-// A linear algebra library for C
-// Using general structs to represent vectors and matrices of any dimension
-// and type
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+// A Linear Algebra library for C
+// Using general structs to represent vectors, matrices and tensors of any dimension
+
+// Vector struct
 
 typedef struct {
     int size;
     double *data;
 } Vector;
 
+// Matrix struct
+// A matrix is a 2D array of doubles
+
 typedef struct {
     int rows, cols;
     double **data;
 } Matrix;
+
+// Tensor struct
+// A tensor is a 3D array of doubles
+
+typedef struct {
+    int rank, rows, cols;
+    Matrix *data;
+} Tensor;
 
 // Vector functions
 
@@ -54,5 +69,16 @@ Matrix *matrix_translation(double x, double y, double z);
 Matrix *matrix_solve(Matrix *A, Matrix *b);
 Matrix *matrix_solve_lu(Matrix *A, Matrix *b);
 Matrix *matrix_lu(Matrix *A);
+
+// Tensor functions
+Tensor *tensor_new(int num_matrices, int rows, int cols);
+void tensor_free(Tensor *t);
+void tensor_copy(Tensor *t1, Tensor *t2);
+Tensor *tensor_add(Tensor *t1, Tensor *t2);
+Tensor *tensor_sub(Tensor *t1, Tensor *t2);
+Tensor *tensor_scale(Tensor *t, double s);
+Tensor *tensor_dot(Tensor *t1, Tensor *t2);
+Tensor *tensor_multiply(Tensor *t1, Tensor *t2);
+Tensor *tensor_transpose(Tensor *t);
 
 #endif

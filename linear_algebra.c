@@ -1,9 +1,7 @@
 #include "linear_algebra.h"
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 // Vector functions
+// -----------------------------------------------------------------------------
 
 Vector* vector_new(int n) {
     Vector* v = malloc(sizeof(Vector));
@@ -138,7 +136,7 @@ double* vector_to_array(Vector *v) {
 }
 
 // Matrix functions
-// ----------------
+// -----------------------------------------------------------------------------
 
 Matrix* matrix_new(int rows, int cols) {
     Matrix *result = malloc(sizeof(Matrix));
@@ -484,29 +482,188 @@ Matrix* matrix_solve_lu(Matrix *A, Matrix *b) {
     return x;
 }
 
+// Transfers data from matrix A to matrix B
+// Needs to check if A is NULL/empty
+// If A is empty then return ERROR, cannot copy empty matrix
+// If B is empty then create a new matrix with the same dimensions as A
+// If B is not empty then check if the dimensions of A and B are the same
+// If the dimensions are the same then copy the data from A to B
+// This still segfaults, why?
+// As soon as I just acces b->data[0][0] it segfaults
+// I think it has something to do with the fact that I'm not allocating memory for b->data
+// But I don't know how to do that
+
+Matrix* matrix_transfer(Matrix *src, Matrix *dest) {
+    if (src->rows == 0 || src->cols == 0) {
+        // handle error
+        printf("Error: matrix A is empty\n");
+        return;
+    }
+
+    if (dest->rows == 0 || dest->cols == 0) {
+        dest = matrix_new(src->rows, src->cols);
+        // allocate memory for the matrix data
+        dest->data = malloc(dest->rows * sizeof(double*));
+        if (dest->data == NULL) {
+            // handle memory allocation error
+            printf("Error: unable to allocate memory for matrix data\n");
+            return;
+        }
+
+        for (int i = 0; i < dest->rows; i++) {
+            dest->data[i] = malloc(dest->cols * sizeof(double));
+            if (dest->data[i] == NULL) {
+                // handle memory allocation error
+                printf("Error: unable to allocate memory for matrix data\n");
+                return;
+            }
+        }
+    }
+
+    if (src->rows != dest->rows || src->cols != dest->cols) {
+        // handle error
+        printf("Error: matrix A and B have different dimensions\n");
+        return;
+    }
+
+    for (int i = 0; i < src->rows; i++) {
+        for (int j = 0; j < src->cols; j++) {
+            dest->data[i][j] = src->data[i][j];
+        }
+    }
+
+    return dest;
+}
+
+// Tensor functions
+// -----------------------------------------------------------------------------
+
+Tensor* tensor_new(int rows, int cols, int rank) {
+    Tensor *t = malloc(sizeof(Tensor));
+    if (t == NULL) {
+        // handle error
+        printf("Error: unable to allocate memory for tensor\n");
+        return NULL;
+    }
+
+    t->rows = rows;
+    t->cols = cols;
+    t->rank = rank;
+
+    t->data = malloc(rank * sizeof(Matrix*));
+    if (t->data == NULL) {
+        // handle error
+        printf("Error: unable to allocate memory for tensor data\n");
+        return NULL;
+    }
+
+    for(int i = 0; i < rank; i++) {
+        t->data[i] = *matrix_new(0, 0);
+        if (&(t->data[i]) == NULL) {
+            // handle error
+            printf("Error: unable to allocate memory for tensor data\n");
+            return NULL;
+        }
+    }
+
+    return t;
+}
+
+void tensor_insert(Tensor *t, Matrix *m, int index) {
+    if (index >= t->rank) {
+        // handle error
+        printf("Error: index out of bounds\n");
+        return;
+    }
+
+    t->data[index].rows = m->rows;
+    t->data[index].cols = m->cols;
+    t->data[index] = *m;
+}
+
+void tensor_free(Tensor *t) {
+    for(int i = 0; i < t->rank; i++) {
+        matrix_free(&(t->data[i]));
+    }
+    free(t->data);
+    free(t);
+}
+
+// Copies tensor, src, to tensor, dest.
+// If dest is NULL, a new tensor is created.
+// If dest is not NULL, it must be the same size as src.
+// If an error occurs, returns NULL.
+// -----------------------------------------------------------------------------
+
+// This program segfaults if the tensor is not initialized to 0. Why?
+// -----------------------------------------------------------------------------
+void tensor_copy(Tensor *src, Tensor *dest) {
+    if (dest == NULL) {
+        dest = tensor_new(src->rank, src->rows, src->cols);
+    }
+
+    if (dest->rank != src->rank) {
+        // handle error
+        printf("Error: tensors must be the same size\n");
+        return;
+    }
+
+    for(int i = 0; i < src->rank; i++) {
+        Matrix* temp;
+        temp = matrix_transfer(&(src->data[i]), &(dest->data[i]));
+        if (temp == NULL) {
+            // handle error
+            printf("Error: unable to copy tensor\n");
+            return;
+        }
+        dest->data[i] = *temp;
+    }
+}
+
+
+// Print function for a tensor
+// -----------------------------------------------------------------------------
+
+void tensor_print(Tensor *t) {
+    for(int i = 0; i < t->rank; i++) {
+        printf("Tensor rank %d:\n", i);
+        if (t->data[i].rows == 0 || t->data[i].cols == 0) {
+            printf("Empty matrix\n");
+        } else {
+            print_matrix(&(t->data[i]));
+        }
+    }
+}
+
 int main() {
-    // Example 1
-    // Matrix A = [1 2 3; 4 5 6; 7 8 9]
-    // Matrix B = [3; 3; 4]
     double data1[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int size = sizeof(data1) / sizeof(data1[0]);
-    printf("size = %d\n", size);
 
     Matrix* A = matrix_new(3, 3);
     set_matrix(A, data1, size);
-    print_matrix(A);
     
     // A random 3x3 matrix
-    double data2[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    double data2[] = {10, 11, 12, 13, 14, 15, 16, 17, 18};
     size = sizeof(data2) / sizeof(data2[0]);
-    printf("size = %d\n", size);
 
     Matrix* B = matrix_new(3, 3);
     set_matrix(B, data2, size);
-    print_matrix(B);
-
-    Matrix* res = matrix_multiply(A, B);
-    print_matrix(res);
+    
+    Tensor* C = tensor_new(2, 2, 2);
+    tensor_insert(C, A, 0);
+    tensor_insert(C, B, 1);
+    printf("Tensor C:\n");
+    tensor_print(C);
+        
+    Tensor* D = tensor_new(2, 2, 2);
+    tensor_copy(C, D);
+    printf("Tensor D:\n");
+    tensor_print(D);
+    C->data[0].data[0][0] = 100;
+    printf("Mutated Tensor C:\n");
+    tensor_print(C);
+    printf("Tensor D:\n");
+    tensor_print(D);
     
     return 1;
 }
