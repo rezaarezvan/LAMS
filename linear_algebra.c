@@ -164,19 +164,22 @@ Matrix *matrix_copy(Matrix *m) {
 }
 
 Matrix *matrix_add(Matrix *a, Matrix *b) {
-  Matrix *result = matrix_new(a->rows, a->cols);
-
   if (a->rows != b->rows && a->cols != b->cols) {
     printf("Error: matrix sizes do not match");
     return NULL;
   }
 
+  printf("Test");
+  Matrix *result = matrix_new(a->rows, a->cols);
+
+  printf("Test");
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < a->cols; j++) {
       result->data[i][j] = a->data[i][j] + b->data[i][j];
     }
   }
-
+  
+  printf("Test");
   return result;
 }
 
@@ -559,7 +562,6 @@ void tensor_print(Tensor *t) {
   }
 }
 
-// TODO. Fix
 Tensor* tensor_add(Tensor *t1, Tensor *t2) {
   if (t1->rank != t2->rank) {
     // handle error
@@ -567,9 +569,18 @@ Tensor* tensor_add(Tensor *t1, Tensor *t2) {
     return NULL;
   }
 
+  // Check if the matrices in the tensors are the same size
+  for (int i = 0; i < t1->rank; i++) {
+    if (t1->data[i].rows != t2->data[i].rows || t1->data[i].cols != t2->data[i].cols) {
+      // handle error
+      printf("Error: matrices must be the same size\n");
+      return NULL;
+    }
+  }
+
   Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
   tensor_copy(t1, result);
-
+  
   for (int i = 0; i < t1->rank; i++) {
     Matrix *temp = matrix_add(&(t1->data[i]), &(t2->data[i]));
     if (temp == NULL) {
