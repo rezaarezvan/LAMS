@@ -142,12 +142,17 @@ Matrix *matrix_new(int rows, int cols) {
 
   result->rows = rows;
   result->cols = cols;
-
+  result->data = (double**)malloc(sizeof(double*) * rows);
+  for (int i = 0; i < rows; i++) {
+    result->data[i] = (double*)calloc(cols, sizeof(double));
+  }
   return result;
 }
 
 void matrix_free(Matrix *m) {
-  free(m->data);
+  for (int i = 0; i < m->rows; i++) {
+    free(m->data[i]);
+  }
   free(m);
 }
 
@@ -169,34 +174,29 @@ Matrix *matrix_add(Matrix *a, Matrix *b) {
     return NULL;
   }
 
-  printf("Test");
   Matrix *result = matrix_new(a->rows, a->cols);
 
-  printf("Test");
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < a->cols; j++) {
       result->data[i][j] = a->data[i][j] + b->data[i][j];
     }
   }
-  
-  printf("Test");
   return result;
 }
 
 Matrix *matrix_sub(Matrix *a, Matrix *b) {
-  Matrix *result = matrix_new(a->rows, a->cols);
-
   if (a->rows != b->rows && a->cols != b->cols) {
     printf("Error: matrix sizes do not match");
     return NULL;
   }
+
+  Matrix *result = matrix_new(a->rows, a->cols);
 
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < a->cols; j++) {
       result->data[i][j] = a->data[i][j] - b->data[i][j];
     }
   }
-
   return result;
 }
 
@@ -301,6 +301,28 @@ void matrix_print(Matrix *m) {
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
       printf("%f ", m->data[i][j]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+
+}
+
+void matrix_print_test(Matrix m) {
+  for (int i = 0; i < m.rows; i++) {
+    for (int j = 0; j < m.cols; j++) {
+      printf("%f ", m.data[i][j]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+
+}
+
+void matrix_print_2(Matrix m) {
+  for (int i = 0; i < m.rows; i++) {
+    for (int j = 0; j < m.cols; j++) {
+      printf("%f ", m.data[i][j]);
     }
     printf("\n");
   }
@@ -489,7 +511,7 @@ Tensor *tensor_new(int rows, int cols, int rank) {
   t->cols = cols;
   t->rank = rank;
 
-  t->data = malloc(rank * sizeof(Matrix *));
+  t->data = malloc(rank * sizeof(Matrix));
   if (t->data == NULL) {
     // handle error
     printf("Error: unable to allocate memory for tensor data\n");
@@ -524,7 +546,9 @@ void tensor_free(Tensor *t) {
   for (int i = 0; i < t->rank; i++) {
     matrix_free(&(t->data[i]));
   }
-  free(t->data);
+  for (int i = 0; i < t->rank; i++) {
+    free(&(t->data[i]));
+  }
   free(t);
 }
 
@@ -562,36 +586,35 @@ void tensor_print(Tensor *t) {
   }
 }
 
-Tensor* tensor_add(Tensor *t1, Tensor *t2) {
+// Tensor operations
+// ----------------------------------------------------------------------------
+// Tensor addition
+Tensor* tensor_add(Tensor* t1, Tensor* t2) {
   if (t1->rank != t2->rank) {
     // handle error
-    printf("Error: tensors must be the same rank\n");
+    printf("Error: tensors must be the same size\n");
     return NULL;
   }
 
-  // Check if the matrices in the tensors are the same size
-  for (int i = 0; i < t1->rank; i++) {
-    if (t1->data[i].rows != t2->data[i].rows || t1->data[i].cols != t2->data[i].cols) {
-      // handle error
-      printf("Error: matrices must be the same size\n");
-      return NULL;
-    }
+  Tensor *t3 = tensor_new(t1->rank, t1->rows, t1->cols);
+  if (t3 == NULL) {
+    // handle error
+    printf("Error: unable to allocate memory for tensor\n");
+    return NULL;
   }
 
-  Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
-  tensor_copy(t1, result);
-  
   for (int i = 0; i < t1->rank; i++) {
-    Matrix *temp = matrix_add(&(t1->data[i]), &(t2->data[i]));
+    Matrix *temp;
+    temp = matrix_add(&(t1->data[i]), &(t2->data[i]));
     if (temp == NULL) {
       // handle error
       printf("Error: unable to add tensors\n");
       return NULL;
     }
-    tensor_insert(result, temp, i);
+    tensor_insert(t3, temp, i);
   }
 
-  return result;
+  return t3;
 }
 
 // Main function
@@ -613,18 +636,11 @@ int main() {
   Tensor *C = tensor_new(2, 2, 2);
   tensor_insert(C, A, 0);
   tensor_insert(C, B, 1);
-  printf("Tensor C:\n");
-  tensor_print(C);
 
   Tensor *D = tensor_new(2, 2, 2);
   tensor_copy(C, D);
-  printf("Tensor D:\n");
-  tensor_print(D);
-  C->data[0].data[0][0] = 100;
-  printf("Mutated Tensor C:\n");
-  tensor_print(C);
-  printf("Tensor D:\n");
-  tensor_print(D);
+
+  Tensor* sum = tensor_add(C, D);
 
   return 1;
 }
