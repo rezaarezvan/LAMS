@@ -12,21 +12,33 @@ Vector *vector_new(int n) {
 void vector_free(Vector *v) {
   free(v->data);
   free(v);
+  v = NULL;
 }
 
 Vector *vector_copy(Vector *v) {
   Vector *v_copy = vector_new(v->size);
+  if (v_copy == NULL) {
+    printf("Error: vector_copy() failed to allocate memory for v_copy\n");
+    return NULL;
+  }
+
   for (int i = 0; i < v->size; i++) {
     v_copy->data[i] = v->data[i];
   }
+
   return v_copy;
 }
 
 Vector *vector_add(Vector *a, Vector *b) {
-  Vector *result = malloc(sizeof(Vector));
-
   if (a->size != b->size) {
     printf("Error: vector sizes do not match");
+    return NULL;
+  }
+
+  Vector *result = vector_new(a->size);
+
+  if (result == NULL) {
+    printf("Error: vector_add() failed to allocate memory for result\n");
     return NULL;
   }
 
@@ -38,10 +50,15 @@ Vector *vector_add(Vector *a, Vector *b) {
 }
 
 Vector *vector_sub(Vector *a, Vector *b) {
-  Vector *result = malloc(sizeof(Vector));
-
   if (a->size != b->size) {
     printf("Error: vector sizes do not match");
+    return NULL;
+  }
+
+  Vector *result = vector_new(a->size);
+
+  if (result == NULL) {
+    printf("Error: vector_sub() failed to allocate memory for result\n");
     return NULL;
   }
 
@@ -53,7 +70,12 @@ Vector *vector_sub(Vector *a, Vector *b) {
 }
 
 Vector *vector_scale(Vector *v, double c) {
-  Vector *result = malloc(sizeof(Vector));
+  Vector *result = vector_new(v->size);
+
+  if (result == NULL) {
+    printf("Error: vector_scale() failed to allocate memory for result\n");
+    return NULL;
+  }
 
   for (int i = 0; i < v->size; i++) {
     result->data[i] = v->data[i] * c;
@@ -88,7 +110,12 @@ double vector_norm(Vector *v) {
 }
 
 Vector *vector_normalize(Vector *v) {
-  Vector *result = malloc(sizeof(Vector));
+  Vector *result = vector_new(v->size);
+
+  if (result == NULL) {
+    printf("Error: vector_normalize() failed to allocate memory for result\n");
+    return NULL;
+  }
 
   double norm = vector_norm(v);
 
@@ -100,10 +127,15 @@ Vector *vector_normalize(Vector *v) {
 }
 
 Vector *vector_cross(Vector *a, Vector *b) {
-  Vector *result = malloc(sizeof(Vector));
-
   if (a->size != b->size) {
     printf("Error: vector sizes do not match");
+    return NULL;
+  }
+
+  Vector *result = vector_new(3);
+
+  if (result == NULL) {
+    printf("Error: vector_cross() failed to allocate memory for result\n");
     return NULL;
   }
 
@@ -115,8 +147,14 @@ Vector *vector_cross(Vector *a, Vector *b) {
   return result;
 }
 
-Vector *vector_from_array(int size, double *array) {
-  Vector *result = malloc(sizeof(Vector));
+Vector *vector_from_array(int size, double array[]) {
+  Vector *result = vector_new(size);
+  
+  if (result == NULL) {
+    printf("Error: vector_from_array() failed to allocate memory for result\n");
+    return NULL;
+  }
+  
 
   for (int i = 0; i < size; i++) {
     result->data[i] = array[i];
@@ -126,7 +164,7 @@ Vector *vector_from_array(int size, double *array) {
 }
 
 double *vector_to_array(Vector *v) {
-  double result[v->size];
+  double *result = malloc(sizeof(double) * v->size);
 
   for (int i = 0; i < v->size; i++) {
     result[i] = v->data[i];
@@ -142,9 +180,10 @@ Matrix *matrix_new(int rows, int cols) {
 
   result->rows = rows;
   result->cols = cols;
-  result->data = (double**)malloc(sizeof(double*) * rows);
+  result->data = malloc(sizeof(double *) * rows);
+
   for (int i = 0; i < rows; i++) {
-    result->data[i] = (double*)calloc(cols, sizeof(double));
+    result->data[i] = calloc(cols, sizeof(double));
   }
   return result;
 }
@@ -176,11 +215,17 @@ Matrix *matrix_add(Matrix *a, Matrix *b) {
 
   Matrix *result = matrix_new(a->rows, a->cols);
 
+  if (result == NULL) {
+    printf("Error: matrix_add() failed to allocate memory for result\n");
+    return NULL;
+  }
+
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < a->cols; j++) {
       result->data[i][j] = a->data[i][j] + b->data[i][j];
     }
   }
+
   return result;
 }
 
@@ -192,16 +237,27 @@ Matrix *matrix_sub(Matrix *a, Matrix *b) {
 
   Matrix *result = matrix_new(a->rows, a->cols);
 
+  if (result == NULL) {
+    printf("Error: matrix_sub() failed to allocate memory for result\n");
+    return NULL;
+  }
+
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < a->cols; j++) {
       result->data[i][j] = a->data[i][j] - b->data[i][j];
     }
   }
+
   return result;
 }
 
 Matrix *matrix_scale(Matrix *m, double s) {
   Matrix *result = matrix_new(m->rows, m->cols);
+
+  if (result == NULL) {
+    printf("Error: matrix_scale() failed to allocate memory for result\n");
+    return NULL;
+  }
 
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
@@ -213,10 +269,15 @@ Matrix *matrix_scale(Matrix *m, double s) {
 }
 
 Matrix *matrix_multiply(Matrix *a, Matrix *b) {
-  Matrix *result = matrix_new(a->rows, b->cols);
-
   if (a->cols != b->rows) {
     printf("Error: matrix sizes do not match");
+    return NULL;
+  }
+
+  Matrix *result = matrix_new(a->rows, b->cols);
+
+  if (result == NULL) {
+    printf("Error: matrix_multiply() failed to allocate memory for result\n");
     return NULL;
   }
 
@@ -232,10 +293,15 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
 }
 
 Matrix *matrix_muliply_vector(Matrix *m, Vector *v) {
-  Matrix *result = matrix_new(m->rows, 1);
-
   if (m->cols != v->size) {
     printf("Error: matrix sizes do not match");
+    return NULL;
+  }
+
+  Matrix *result = matrix_new(m->rows, 1);
+
+  if (result == NULL) {
+    printf("Error: matrix_muliply_vector() failed to allocate memory for result\n");
     return NULL;
   }
 
@@ -275,6 +341,7 @@ void matrix_set(Matrix *m, double data[], int size) {
   }
 
   m->data = malloc(m->rows * sizeof(double *));
+
   if (m->data == NULL) {
     // handle memory allocation error
     printf("Error: unable to allocate memory for matrix data\n");
@@ -305,92 +372,19 @@ void matrix_print(Matrix *m) {
     printf("\n");
   }
   printf("\n");
-
 }
 
-void matrix_print_test(Matrix m) {
-  for (int i = 0; i < m.rows; i++) {
-    for (int j = 0; j < m.cols; j++) {
-      printf("%f ", m.data[i][j]);
-    }
-    printf("\n");
-  }
-  printf("\n");
+Matrix *matrix_identity(int size) {
+  Matrix *result = matrix_new(size, size);
 
-}
-
-void matrix_print_2(Matrix m) {
-  for (int i = 0; i < m.rows; i++) {
-    for (int j = 0; j < m.cols; j++) {
-      printf("%f ", m.data[i][j]);
-    }
-    printf("\n");
-  }
-  printf("\n");
-}
-
-Matrix *matrix_identity(int n) {
-  Matrix *result = matrix_new(n, n);
-
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < size; i++) {
     result->data[i][i] = 1;
   }
 
   return result;
 }
 
-Matrix *matrix_translation(double x, double y, double z) {
-  Matrix *result = matrix_identity(4);
-
-  result->data[0][3] = x;
-  result->data[1][3] = y;
-  result->data[2][3] = z;
-
-  return result;
-}
-
-Matrix *matrix_transfer(Matrix *src, Matrix *dst) {
-  if (src->rows == 0 || src->cols == 0) {
-    // handle error
-    printf("Error: matrix A is empty\n");
-    return NULL;
-  }
-
-  if (dst->rows == 0 || dst->cols == 0) {
-    dst = matrix_new(src->rows, src->cols);
-    // allocate memory for the matrix data
-    dst->data = malloc(dst->rows * sizeof(double *));
-    if (dst->data == NULL) {
-      // handle memory allocation error
-      printf("Error: unable to allocate memory for matrix data\n");
-      return NULL;
-    }
-
-    for (int i = 0; i < dst->rows; i++) {
-      dst->data[i] = malloc(dst->cols * sizeof(double));
-      if (dst->data[i] == NULL) {
-        // handle memory allocation error
-        printf("Error: unable to allocate memory for matrix data\n");
-        return NULL;
-      }
-    }
-  }
-
-  if (src->rows != dst->rows || src->cols != dst->cols) {
-    // handle error
-    printf("Error: matrix A and B have different dimensions\n");
-    return NULL;
-  }
-
-  for (int i = 0; i < src->rows; i++) {
-    for (int j = 0; j < src->cols; j++) {
-      dst->data[i][j] = src->data[i][j];
-    }
-  }
-
-  return dst;
-}
-
+// TODO: Fix
 Matrix *matrix_solve(Matrix *A, Matrix *b) {
   int n = A->cols;
   Matrix *x = matrix_new(n, 1);
@@ -445,6 +439,7 @@ Matrix *matrix_solve(Matrix *A, Matrix *b) {
   return x;
 }
 
+// TODO: Fix
 Matrix *matrix_solve_lu(Matrix *A, Matrix *b) {
   int n = A->cols;
 
@@ -519,7 +514,7 @@ Tensor *tensor_new(int rows, int cols, int rank) {
   }
 
   for (int i = 0; i < rank; i++) {
-    t->data[i] = *matrix_new(0, 0);
+    t->data[i] = *(matrix_new(0, 0));
     if (&(t->data[i]) == NULL) {
       // handle error
       printf("Error: unable to allocate memory for tensor data\n");
@@ -552,20 +547,11 @@ void tensor_free(Tensor *t) {
   free(t);
 }
 
-void tensor_copy(Tensor *src, Tensor *dst) {
-  if (dst == NULL) {
-    dst = tensor_new(src->rank, src->rows, src->cols);
-  }
-
-  if (dst->rank != src->rank) {
-    // handle error
-    printf("Error: tensors must be the same size\n");
-    return;
-  }
+Tensor* tensor_copy(Tensor *src) {
+  Tensor *dst = tensor_new(src->rows, src->cols, src->rank);
 
   for (int i = 0; i < src->rank; i++) {
-    Matrix *temp;
-    temp = matrix_transfer(&(src->data[i]), &(dst->data[i]));
+    Matrix *temp = matrix_copy(&(src->data[i]));
     if (temp == NULL) {
       // handle error
       printf("Error: unable to copy tensor\n");
@@ -573,6 +559,8 @@ void tensor_copy(Tensor *src, Tensor *dst) {
     }
     dst->data[i] = *temp;
   }
+
+  return dst;
 }
 
 void tensor_print(Tensor *t) {
@@ -586,18 +574,15 @@ void tensor_print(Tensor *t) {
   }
 }
 
-// Tensor operations
-// ----------------------------------------------------------------------------
-// Tensor addition
-Tensor* tensor_add(Tensor* t1, Tensor* t2) {
+Tensor* tensor_add(Tensor *t1, Tensor *t2) {
   if (t1->rank != t2->rank) {
     // handle error
     printf("Error: tensors must be the same size\n");
     return NULL;
   }
 
-  Tensor *t3 = tensor_new(t1->rank, t1->rows, t1->cols);
-  if (t3 == NULL) {
+  Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
+  if (result == NULL) {
     // handle error
     printf("Error: unable to allocate memory for tensor\n");
     return NULL;
@@ -611,36 +596,115 @@ Tensor* tensor_add(Tensor* t1, Tensor* t2) {
       printf("Error: unable to add tensors\n");
       return NULL;
     }
-    tensor_insert(t3, temp, i);
+    tensor_insert(result, temp, i);
   }
 
-  return t3;
+  return result;
 }
 
-// Main function
-// -----------------------------------------------------------------------------
-int main() {
-  double data1[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-  int size = sizeof(data1) / sizeof(data1[0]);
+Tensor* tensor_sub(Tensor *t1, Tensor *t2) {
+  if (t1->rank != t2->rank) {
+    // handle error
+    printf("Error: tensors must be the same size\n");
+    return NULL;
+  }
 
-  Matrix *A = matrix_new(3, 3);
-  matrix_set(A, data1, size);
+  Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
+  if (result == NULL) {
+    // handle error
+    printf("Error: unable to allocate memory for tensor\n");
+    return NULL;
+  }
 
-  // A random 3x3 matrix
-  double data2[] = {10, 11, 12, 13, 14, 15, 16, 17, 18};
-  size = sizeof(data2) / sizeof(data2[0]);
+  for (int i = 0; i < t1->rank; i++) {
+    Matrix *temp;
+    temp = matrix_sub(&(t1->data[i]), &(t2->data[i]));
+    if (temp == NULL) {
+      // handle error
+      printf("Error: unable to add tensors\n");
+      return NULL;
+    }
+    tensor_insert(result, temp, i);
+  }
 
-  Matrix *B = matrix_new(3, 3);
-  matrix_set(B, data2, size);
+  return result;
+}
 
-  Tensor *C = tensor_new(2, 2, 2);
-  tensor_insert(C, A, 0);
-  tensor_insert(C, B, 1);
+Tensor* tensor_scale(Tensor *t, double scale) {
+  Tensor *result = tensor_new(t->rank, t->rows, t->cols);
+  if (result == NULL) {
+    // handle error
+    printf("Error: unable to allocate memory for tensor\n");
+    return NULL;
+  }
 
-  Tensor *D = tensor_new(2, 2, 2);
-  tensor_copy(C, D);
+  for (int i = 0; i < t->rank; i++) {
+    Matrix *temp;
+    temp = matrix_scale(&(t->data[i]), scale);
 
-  Tensor* sum = tensor_add(C, D);
+    if (temp == NULL) {
+      printf("Error: unable to scale tensor\n");
+      return NULL;
+    }
 
-  return 1;
+    tensor_insert(result, temp, i);
+  }
+
+  return result;
+}
+
+// Tensor* tensor_dot(Tensor *t1, Tensor *t2) {
+//   if (t1->rank != t2->rank) {
+//     // handle error
+//     printf("Error: tensors must be the same size\n");
+//     return NULL;
+//   }
+//
+//   Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
+//   if (result == NULL) {
+//     // handle error
+//     printf("Error: unable to allocate memory for tensor\n");
+//     return NULL;
+//   }
+//
+//   for (int i = 0; i < t1->rank; i++) {
+//     Matrix *temp;
+//     temp = matrix_dot(&(t1->data[i]), &(t2->data[i]));
+//     if (temp == NULL) {
+//       // handle error
+//       printf("Error: unable to add tensors\n");
+//       return NULL;
+//     }
+//     tensor_insert(result, temp, i);
+//   }
+//
+//   return result;
+// }
+
+Tensor* tensor_multiply(Tensor* t1, Tensor* t2) {
+  if (t1->rank != t2->rank) {
+    // handle error
+    printf("Error: tensors must be the same size\n");
+    return NULL;
+  }
+
+  Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
+  if (result == NULL) {
+    // handle error
+    printf("Error: unable to allocate memory for tensor\n");
+    return NULL;
+  }
+
+  for (int i = 0; i < t1->rank; i++) {
+    Matrix *temp;
+    temp = matrix_multiply(&(t1->data[i]), &(t2->data[i]));
+    if (temp == NULL) {
+      // handle error
+      printf("Error: unable to add tensors\n");
+      return NULL;
+    }
+    tensor_insert(result, temp, i);
+  }
+
+  return result;
 }
