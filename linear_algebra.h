@@ -31,7 +31,6 @@ typedef struct {
 } Tensor;
 
 // Vector functions
-
 Vector *vector_new(int n);
 void vector_free(Vector *v);
 Vector *vector_copy(Vector *v);
@@ -55,25 +54,25 @@ Matrix *matrix_scale(Matrix *m, double s);
 Matrix *matrix_multiply(Matrix *m1, Matrix *m2);
 Vector *matrix_multiply_vector(Matrix *m, Vector *v);
 Matrix *matrix_transpose(Matrix *m);
-Matrix *matrix_from_array(int m, int n, double *data);
+void matrix_fill(Matrix *m, double s);
+void matrix_set(Matrix *m, double data[], int size);
+void matrix_print(Matrix *m);
 Matrix *matrix_identity(int n);
-Matrix *matrix_rotation_x(double theta);
-Matrix *matrix_rotation_y(double theta);
-Matrix *matrix_rotation_z(double theta);
-Matrix *matrix_rotation(Vector *axis, double theta);
 Matrix *matrix_translation(double x, double y, double z);
+Matrix* matrix_transfer(Matrix *src, Matrix *dst);
 
 // Functions to solve linear systems of form Ax = b
 // using Gaussian elimination with partial pivoting
 // and back substitution
 Matrix *matrix_solve(Matrix *A, Matrix *b);
 Matrix *matrix_solve_lu(Matrix *A, Matrix *b);
-Matrix *matrix_lu(Matrix *A);
 
 // Tensor functions
 Tensor *tensor_new(int num_matrices, int rows, int cols);
+void tensor_insert(Tensor *t, Matrix *m, int index);
 void tensor_free(Tensor *t);
-void tensor_copy(Tensor *t1, Tensor *t2);
+void tensor_copy(Tensor *src, Tensor *dst);
+void tensor_print(Tensor *t);
 Tensor *tensor_add(Tensor *t1, Tensor *t2);
 Tensor *tensor_sub(Tensor *t1, Tensor *t2);
 Tensor *tensor_scale(Tensor *t, double s);
