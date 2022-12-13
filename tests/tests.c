@@ -191,7 +191,7 @@ void test_matrix_new() {
 }
 
 void test_matrix_free() {
-  Matrix *m = matrix_new(2, 3);
+  Matrix *m = matrix_new(0, 0);
   matrix_free(m);
 }
 
@@ -397,6 +397,37 @@ void test_matrix_set() {
   matrix_free(m);
 }
 
+void test_matrix_identity() {
+  Matrix *m = matrix_identity(3);
+  assert(m->data[0][0] == 1);
+  assert(m->data[0][1] == 0);
+  assert(m->data[0][2] == 0);
+  assert(m->data[1][0] == 0);
+  assert(m->data[1][1] == 1);
+  assert(m->data[1][2] == 0);
+  assert(m->data[2][0] == 0);
+  assert(m->data[2][1] == 0);
+  assert(m->data[2][2] == 1);
+  matrix_free(m);
+}
+
+void test_tensor_new() {
+  Tensor *t = tensor_new(3, 3, 3);
+  assert(t != NULL);
+  assert(t->data != NULL);
+  for(int i = 0; i < t->rank; i++) {
+    assert(&(t->data[i]) != NULL);
+  }
+  assert(t->rows == 3);
+  assert(t->cols == 3);
+  assert(t->rank == 3);
+}
+
+void test_tensor_free() {
+  Tensor *t = tensor_new(3, 3, 3);
+  tensor_free(t);
+}
+
 int main(int argc, char* argv) {
   test_vector_new();
   printf("test_vector_new passed\n");
@@ -420,8 +451,7 @@ int main(int argc, char* argv) {
   printf("test_vector_from_array passed\n");
   test_vector_to_array();
   printf("test_vector_to_array passed\n");
-
-  printf("All tests passed\n\n");
+  printf("All Vector tests passed\n\n");
 
   test_matrix_new();
   printf("test_matrix_new passed\n");
@@ -445,4 +475,14 @@ int main(int argc, char* argv) {
   printf("test_matrix_fill passed\n");
   test_matrix_set();
   printf("test_matrix_set passed\n");
+  test_matrix_identity();
+  printf("test_matrix_identity passed\n");
+
+  printf("All Matrix tests passed\n\n");
+
+  test_tensor_new();
+  printf("test_tensor_new passed\n");
+  test_tensor_free();
+  printf("test_tensor_free passed\n");
+
 }

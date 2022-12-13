@@ -541,9 +541,7 @@ void tensor_free(Tensor *t) {
   for (int i = 0; i < t->rank; i++) {
     matrix_free(&(t->data[i]));
   }
-  for (int i = 0; i < t->rank; i++) {
-    free(&(t->data[i]));
-  }
+  free(t->data);
   free(t);
 }
 
