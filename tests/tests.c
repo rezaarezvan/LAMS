@@ -193,6 +193,7 @@ void test_matrix_new() {
 void test_matrix_free() {
   Matrix *m = matrix_new(0, 0);
   matrix_free(m);
+  free(m);
 }
 
 void test_matrix_copy() {
@@ -428,6 +429,18 @@ void test_tensor_free() {
   tensor_free(t);
 }
 
+void test_tensor_insert() {
+  Tensor *t = tensor_new(3, 3, 3);
+  Matrix *m = matrix_new(3, 3);
+  matrix_fill(m, 1);
+  tensor_insert(t, m, 0);
+  for(int i = 0; i < t->rows; i++) {
+    for(int j = 0; j < t->cols; j++) {
+      assert(t->data[0].data[i][j] == 1);
+    }
+  }
+}
+
 int main(int argc, char* argv) {
   test_vector_new();
   printf("test_vector_new passed\n");
@@ -484,5 +497,6 @@ int main(int argc, char* argv) {
   printf("test_tensor_new passed\n");
   test_tensor_free();
   printf("test_tensor_free passed\n");
-
+  test_tensor_insert();
+  printf("test_tensor_insert passed\n");
 }

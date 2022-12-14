@@ -184,6 +184,10 @@ Matrix *matrix_new(int rows, int cols) {
 
   for (int i = 0; i < rows; i++) {
     result->data[i] = calloc(cols, sizeof(double));
+    if (result->data[i] == NULL) {
+      fprintf(stderr, "Error: matrix_new() failed to allocate memory for row %d\n", i);
+      return NULL;
+    }
   }
   return result;
 }
@@ -191,8 +195,9 @@ Matrix *matrix_new(int rows, int cols) {
 void matrix_free(Matrix *m) {
   for (int i = 0; i < m->rows; i++) {
     free(m->data[i]);
+    m->data[i] = NULL;
   }
-  free(m);
+  free(m->data);
 }
 
 Matrix *matrix_copy(Matrix *m) {
@@ -506,7 +511,7 @@ Tensor *tensor_new(int rows, int cols, int rank) {
   t->cols = cols;
   t->rank = rank;
 
-  t->data = malloc(rank * sizeof(Matrix));
+  t->data = malloc(rank * sizeof(Matrix *));
   if (t->data == NULL) {
     // handle error
     printf("Error: unable to allocate memory for tensor data\n");
@@ -514,7 +519,7 @@ Tensor *tensor_new(int rows, int cols, int rank) {
   }
 
   for (int i = 0; i < rank; i++) {
-    t->data[i] = *(matrix_new(0, 0));
+    t->data[i] = *(matrix_new(3, 3));
     if (&(t->data[i]) == NULL) {
       // handle error
       printf("Error: unable to allocate memory for tensor data\n");
