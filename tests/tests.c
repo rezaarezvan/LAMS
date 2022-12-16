@@ -6,85 +6,108 @@
 // Vector tests
 void test_vector_new() {
   Vector *v = vector_new(3);
+
   assert(v != NULL);
   assert(v->size == 3);
   assert(v->data != NULL);
+
   vector_free(v);
 }
 
 void test_vector_free() {
   Vector *v = vector_new(3);
+
   vector_free(v);
   v = NULL;
   assert(v == NULL);
 }
 
+void test_vector_from_array() {
+  double data[] = {1, 2, 3};
+  Vector *v = vector_from_array(3, data);
+
+  assert(v != NULL);
+  assert(v->size == 3);
+  
+  for (int i = 0; i < v->size; i++) {
+    assert(v->data[i] == data[i]);
+  }
+
+  vector_free(v);
+}
+
 void test_vector_copy() {
-  Vector *v = vector_new(3);
-  v->data[0] = 1;
-  v->data[1] = 2;
-  v->data[2] = 3;
+  double data[] = {1, 2, 3};
+  int size = 3;
+
+  Vector *v = vector_from_array(size, data);
   Vector *copy = vector_copy(v);
+
   assert(copy != NULL);
-  assert(copy->size == 3);
-  assert(copy->data[0] == 1);
-  assert(copy->data[1] == 2);
-  assert(copy->data[2] == 3);
+  assert(copy->size == size);
+
+  for (int i = 0; i < size; i++) {
+    assert(copy->data[i] == v->data[i]);
+  }
+
   vector_free(v);
   vector_free(copy);
 }
 
 void test_vector_add() {
-  Vector *v1 = vector_new(3);
-  v1->data[0] = 1;
-  v1->data[1] = 2;
-  v1->data[2] = 3;
-  Vector *v2 = vector_new(3);
-  v2->data[0] = 4;
-  v2->data[1] = 5;
-  v2->data[2] = 6;
+  double data1[] = {1, 2, 3};
+  double data2[] = {4, 5, 6};
+  int size = 3;
+
+  Vector *v1 = vector_from_array(size, data1);
+  Vector *v2 = vector_from_array(size, data2);
   Vector *v3 = vector_add(v1, v2);
+
   assert(v3 != NULL);
   assert(v3->size == 3);
-  assert(v3->data[0] == 5);
-  assert(v3->data[1] == 7);
-  assert(v3->data[2] == 9);
+  for (int i = 0; i < size; i++) {
+    assert(v3->data[i] == v1->data[i] + v2->data[i]);
+  }
   vector_free(v1);
   vector_free(v2);
   vector_free(v3);
 }
 
 void test_vector_subtract() {
-  Vector *v1 = vector_new(3);
-  v1->data[0] = 1;
-  v1->data[1] = 2;
-  v1->data[2] = 3;
-  Vector *v2 = vector_new(3);
-  v2->data[0] = 4;
-  v2->data[1] = 5;
-  v2->data[2] = 6;
+  double data1[] = {1, 2, 3};
+  double data2[] = {4, 5, 6};
+  int size = 3;
+
+  Vector *v1 = vector_from_array(size, data1);
+  Vector *v2 = vector_from_array(size, data2);
   Vector *v3 = vector_sub(v1, v2);
+
   assert(v3 != NULL);
   assert(v3->size == 3);
-  assert(v3->data[0] == -3);
-  assert(v3->data[1] == -3);
-  assert(v3->data[2] == -3);
+
+  for (int i = 0; i < size; i++) {
+    assert(v3->data[i] == v1->data[i] - v2->data[i]);
+  }
+
   vector_free(v1);
   vector_free(v2);
   vector_free(v3);
 }
 
 void test_vector_scale() {
-  Vector *v = vector_new(3);
-  v->data[0] = 1;
-  v->data[1] = 2;
-  v->data[2] = 3;
-  Vector *v2 = vector_scale(v, 2);
+  double data[] = {1, 2, 3};
+  int size  = 3;
+  int scale = 2;
+
+  Vector *v  = vector_from_array(size, data);
+  Vector *v2 = vector_scale(v, scale);
+
   assert(v2 != NULL);
   assert(v2->size == 3);
-  assert(v2->data[0] == 2);
-  assert(v2->data[1] == 4);
-  assert(v2->data[2] == 6);
+
+  for (int i = 0; i < size; i++) {
+    assert(v2->data[i] == v->data[i] * scale);
+  }
   vector_free(v);
   vector_free(v2);
 }
@@ -149,16 +172,6 @@ void test_vector_cross() {
   vector_free(v3);
 }
 
-void test_vector_from_array() {
-  double data[] = {1, 2, 3};
-  Vector *v = vector_from_array(3, data);
-  assert(v != NULL);
-  assert(v->size == 3);
-  assert(v->data[0] == 1);
-  assert(v->data[1] == 2);
-  assert(v->data[2] == 3);
-  vector_free(v);
-}
 
 void test_vector_to_array() {
   Vector *v = vector_new(3);
@@ -172,7 +185,6 @@ void test_vector_to_array() {
   free(data);
   vector_free(v);
 }
-
 // Matrix tests
 // -----------------------------------------------------------------------------
 
