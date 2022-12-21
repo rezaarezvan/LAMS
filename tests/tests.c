@@ -1,5 +1,5 @@
-#include "../src/linear_algebra.h"
 #include "../src/linear_algebra.c"
+#include "../src/linear_algebra.h"
 
 // Unit tests
 // -----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ void test_vector_from_array() {
 
   assert(v != NULL);
   assert(v->size == 3);
-  
+
   for (int i = 0; i < v->size; i++) {
     assert(v->data[i] == data[i]);
   }
@@ -96,10 +96,10 @@ void test_vector_subtract() {
 
 void test_vector_scale() {
   double data[] = {1, 2, 3};
-  int size  = 3;
+  int size = 3;
   int scale = 2;
 
-  Vector *v  = vector_from_array(size, data);
+  Vector *v = vector_from_array(size, data);
   Vector *v2 = vector_scale(v, scale);
 
   assert(v2 != NULL);
@@ -171,7 +171,6 @@ void test_vector_cross() {
   vector_free(v2);
   vector_free(v3);
 }
-
 
 void test_vector_to_array() {
   Vector *v = vector_new(3);
@@ -428,7 +427,7 @@ void test_tensor_new() {
   Tensor *t = tensor_new(3, 3, 3);
   assert(t != NULL);
   assert(t->data != NULL);
-  for(int i = 0; i < t->rank; i++) {
+  for (int i = 0; i < t->rank; i++) {
     assert(&(t->data[i]) != NULL);
   }
   assert(t->rows == 3);
@@ -446,8 +445,8 @@ void test_tensor_insert() {
   Matrix *m = matrix_new(3, 3);
   matrix_fill(m, 1);
   tensor_insert(t, m, 0);
-  for(int i = 0; i < t->rows; i++) {
-    for(int j = 0; j < t->cols; j++) {
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
       assert(t->data[0].data[i][j] == 1);
     }
   }
@@ -459,8 +458,8 @@ void test_tensor_copy() {
   matrix_fill(m, 1);
   tensor_insert(t, m, 0);
   Tensor *t2 = tensor_copy(t);
-  for(int i = 0; i < t->rows; i++) {
-    for(int j = 0; j < t->cols; j++) {
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
       assert(t2->data[0].data[i][j] == 1);
     }
   }
@@ -475,8 +474,8 @@ void test_tensor_add() {
   tensor_insert(t, m, 0);
   Tensor *t2 = tensor_copy(t);
   Tensor *t3 = tensor_add(t, t2);
-  for(int i = 0; i < t->rows; i++) {
-    for(int j = 0; j < t->cols; j++) {
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
       assert(t3->data[0].data[i][j] == 2);
     }
   }
@@ -492,8 +491,8 @@ void test_tensor_sub() {
   tensor_insert(t, m, 0);
   Tensor *t2 = tensor_copy(t);
   Tensor *t3 = tensor_sub(t, t2);
-  for(int i = 0; i < t->rows; i++) {
-    for(int j = 0; j < t->cols; j++) {
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
       assert(t3->data[0].data[i][j] == 0);
     }
   }
@@ -502,7 +501,7 @@ void test_tensor_sub() {
   tensor_free(t3);
 }
 
-int main(int argc, char* argv) {
+int main(int argc, char *argv) {
   test_vector_new();
   printf("test_vector_new passed\n");
   test_vector_free();
