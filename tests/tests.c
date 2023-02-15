@@ -397,7 +397,7 @@ void test_matrix_fill() {
 
 void test_matrix_set() {
   Matrix *m = matrix_new(2, 3);
-  double data[2][3] = {{1, 2, 3}, {4, 5, 6}};
+  double data[6] = {1, 2, 3, 4, 5, 6};
   int size = 2 * 3;
   matrix_set(m, data, size);
   assert(m->data[0][0] == 1);
