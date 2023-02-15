@@ -1,8 +1,8 @@
 #ifndef STATS_H
 #define STATS_H
 
-#include <stdint.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -64,7 +64,6 @@ typedef struct {
   float sigma;
 
 } normal_t;
-
 
 float binomial_mean(binomial_t *b);
 float binomial_variance(binomial_t *b);

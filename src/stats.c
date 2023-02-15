@@ -2,7 +2,7 @@
 
 // Means
 
-float binomial_mean(binomial_t *bin)   { return bin->n * bin->p; }
+float binomial_mean(binomial_t *bin) { return bin->n * bin->p; }
 
 float bernoulli_mean(bernoulli_t *ber) { return ber->p; }
 
@@ -103,9 +103,7 @@ float bernoulli_skewness(bernoulli_t *ber) {
   return (1 - 2 * ber->p) / bernoulli_std_dev(ber);
 }
 
-float discrete_uniform_skewness(discrete_uniform_t *uni) {
-  return 0;
-}
+float discrete_uniform_skewness(discrete_uniform_t *uni) { return 0; }
 
 float geometric_skewness(geometric_t *geo) {
   return (1 - 2 * geo->p) / geometric_std_dev(geo);
@@ -122,9 +120,7 @@ float negative_binomial_skewness(negative_binomial_t *neg) {
 
 float poisson_skewness(poisson_t *poi) { return 1 / poi->lambda; }
 
-float continuous_uniform_skewness(continuous_uniform_t *uni) {
-  return 0;
-}
+float continuous_uniform_skewness(continuous_uniform_t *uni) { return 0; }
 
 float normal_skewness(normal_t *nor) { return 0; }
 
@@ -184,8 +180,8 @@ float geometric_pmf(geometric_t *geo, uint32_t k) {
 }
 
 float hypergeometric_pmf(hypergeometric_t *hyp, uint32_t k) {
-  return binomial_coefficient(hyp->K, k) * binomial_coefficient(hyp->N - hyp->K,
-                                                               hyp->n - k) /
+  return binomial_coefficient(hyp->K, k) *
+         binomial_coefficient(hyp->N - hyp->K, hyp->n - k) /
          binomial_coefficient(hyp->N, hyp->n);
 }
 
@@ -230,7 +226,9 @@ float bernoulli_cdf(bernoulli_t *ber, uint32_t k) {
 }
 
 float discrete_uniform_cdf(discrete_uniform_t *dis, uint32_t k) {
-  return k >= dis->b ? 1 : k >= dis->a ? (k - dis->a + 1) / (float)(dis->b - dis->a + 1) : 0;
+  return k >= dis->b   ? 1
+         : k >= dis->a ? (k - dis->a + 1) / (float)(dis->b - dis->a + 1)
+                       : 0;
 }
 
 float geometric_cdf(geometric_t *geo, uint32_t k) {
