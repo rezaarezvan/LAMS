@@ -4,8 +4,8 @@
 // -----------------------------------------------------------------------------
 Vector *vector_new(int n) {
   Vector *v = malloc(sizeof(Vector));
-  v->size   = n;
-  v->data   = malloc(n * sizeof(double));
+  v->size = n;
+  v->data = malloc(n * sizeof(double));
   return v;
 }
 
@@ -150,12 +150,11 @@ Vector *vector_cross(Vector *a, Vector *b) {
 
 Vector *vector_from_array(int size, double array[]) {
   Vector *result = vector_new(size);
-  
+
   if (result == NULL) {
     fprintf(stderr, "Error: vector_from_array() failed to allocate memory");
     return NULL;
   }
-  
 
   for (int i = 0; i < size; i++) {
     result->data[i] = array[i];
@@ -186,7 +185,8 @@ Matrix *matrix_new(int rows, int cols) {
   for (int i = 0; i < rows; i++) {
     result->data[i] = calloc(cols, sizeof(double));
     if (result->data[i] == NULL) {
-      fprintf(stderr, "Error: matrix_new() failed to allocate memory for row %d\n", i);
+      fprintf(stderr,
+              "Error: matrix_new() failed to allocate memory for row %d\n", i);
       return NULL;
     }
   }
@@ -215,14 +215,16 @@ Matrix *matrix_copy(Matrix *m) {
 
 Matrix *matrix_add(Matrix *a, Matrix *b) {
   if (a->rows != b->rows && a->cols != b->cols) {
-    fprintf(stderr, "Error: matrix_add() cannot add matrices of different sizes");
+    fprintf(stderr,
+            "Error: matrix_add() cannot add matrices of different sizes");
     return NULL;
   }
 
   Matrix *result = matrix_new(a->rows, a->cols);
 
   if (result == NULL) {
-    fprintf(stderr, "Error: matrix_add() failed to allocate memory for result matrix");
+    fprintf(stderr,
+            "Error: matrix_add() failed to allocate memory for result matrix");
     return NULL;
   }
 
@@ -237,14 +239,16 @@ Matrix *matrix_add(Matrix *a, Matrix *b) {
 
 Matrix *matrix_sub(Matrix *a, Matrix *b) {
   if (a->rows != b->rows && a->cols != b->cols) {
-    fprintf(stderr, "Error: matrix_sub() cannot subtract matrices of different sizes");
+    fprintf(stderr,
+            "Error: matrix_sub() cannot subtract matrices of different sizes");
     return NULL;
   }
 
   Matrix *result = matrix_new(a->rows, a->cols);
 
   if (result == NULL) {
-    fprintf(stderr, "Error: matrix_sub() failed to allocate memory for result matrix");
+    fprintf(stderr,
+            "Error: matrix_sub() failed to allocate memory for result matrix");
     return NULL;
   }
 
@@ -261,7 +265,9 @@ Matrix *matrix_scale(Matrix *m, double s) {
   Matrix *result = matrix_new(m->rows, m->cols);
 
   if (result == NULL) {
-    fprintf(stderr, "Error: matrix_scale() failed to allocate memory for result matrix");
+    fprintf(
+        stderr,
+        "Error: matrix_scale() failed to allocate memory for result matrix");
     return NULL;
   }
 
@@ -276,14 +282,17 @@ Matrix *matrix_scale(Matrix *m, double s) {
 
 Matrix *matrix_multiply(Matrix *a, Matrix *b) {
   if (a->cols != b->rows) {
-    fprintf(stderr, "Error: matrix_multiply() cannot multiply matrices of incompatible sizes");
+    fprintf(stderr, "Error: matrix_multiply() cannot multiply matrices of "
+                    "incompatible sizes");
     return NULL;
   }
 
   Matrix *result = matrix_new(a->rows, b->cols);
 
   if (result == NULL) {
-    fprintf(stderr, "Error: matrix_multiply() failed to allocate memory for result matrix");
+    fprintf(
+        stderr,
+        "Error: matrix_multiply() failed to allocate memory for result matrix");
     return NULL;
   }
 
@@ -300,14 +309,16 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
 
 Matrix *matrix_muliply_vector(Matrix *m, Vector *v) {
   if (m->cols != v->size) {
-    fprintf(stderr, "Error: matrix_muliply_vector() cannot multiply matrix and vector of incompatible sizes");
+    fprintf(stderr, "Error: matrix_muliply_vector() cannot multiply matrix and "
+                    "vector of incompatible sizes");
     return NULL;
   }
 
   Matrix *result = matrix_new(m->rows, 1);
 
   if (result == NULL) {
-    fprintf(stderr, "Error: matrix_muliply_vector() failed to allocate memory for result matrix");
+    fprintf(stderr, "Error: matrix_muliply_vector() failed to allocate memory "
+                    "for result matrix");
     return NULL;
   }
 
@@ -342,21 +353,26 @@ void matrix_fill(Matrix *m, double value) {
 
 void matrix_set(Matrix *m, double data[], int size) {
   if (size != m->rows * m->cols) {
-    fprintf(stderr, "Error: matrix_set() cannot set matrix of size %d to array of size %d", m->rows * m->cols, size);
+    fprintf(
+        stderr,
+        "Error: matrix_set() cannot set matrix of size %d to array of size %d",
+        m->rows * m->cols, size);
     return;
   }
 
   m->data = malloc(m->rows * sizeof(double *));
 
   if (m->data == NULL) {
-    fprintf(stderr, "Error: matrix_set() failed to allocate memory for matrix data");
+    fprintf(stderr,
+            "Error: matrix_set() failed to allocate memory for matrix data");
     return;
   }
 
   for (int i = 0; i < m->rows; i++) {
     m->data[i] = malloc(m->cols * sizeof(double));
     if (m->data[i] == NULL) {
-      fprintf(stderr, "Error: matrix_set() failed to allocate memory for matrix data");
+      fprintf(stderr,
+              "Error: matrix_set() failed to allocate memory for matrix data");
       return;
     }
   }
@@ -390,7 +406,7 @@ Matrix *matrix_identity(int size) {
 
 // TODO: Fix
 Matrix *matrix_solve(Matrix *A, Matrix *b) {
-  int n     = A->cols;
+  int n = A->cols;
   Matrix *x = matrix_new(n, 1);
 
   // Copy A and b to temporary matrices
@@ -533,7 +549,7 @@ void tensor_insert(Tensor *t, Matrix *m, int index) {
 
   t->data[index].rows = m->rows;
   t->data[index].cols = m->cols;
-  t->data[index]      = *m;
+  t->data[index] = *m;
 }
 
 void tensor_free(Tensor *t) {
@@ -544,14 +560,14 @@ void tensor_free(Tensor *t) {
   free(t);
 }
 
-Tensor* tensor_copy(Tensor *src) {
+Tensor *tensor_copy(Tensor *src) {
   Tensor *dst = tensor_new(src->rows, src->cols, src->rank);
 
   for (int i = 0; i < src->rank; i++) {
     Matrix *temp = matrix_copy(&(src->data[i]));
     if (temp == NULL) {
       fprintf(stderr, "tensor_copy: failed to allocate memory");
-      return;
+      return NULL;
     }
     dst->data[i] = *temp;
   }
@@ -570,7 +586,7 @@ void tensor_print(Tensor *t) {
   }
 }
 
-Tensor* tensor_add(Tensor *t1, Tensor *t2) {
+Tensor *tensor_add(Tensor *t1, Tensor *t2) {
   if (t1->rank != t2->rank) {
     fprintf(stderr, "tensor_add: tensors must have the same rank");
     return NULL;
@@ -595,7 +611,7 @@ Tensor* tensor_add(Tensor *t1, Tensor *t2) {
   return result;
 }
 
-Tensor* tensor_sub(Tensor *t1, Tensor *t2) {
+Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
   if (t1->rank != t2->rank) {
     fprintf(stderr, "tensor_sub: tensors must have the same rank");
     return NULL;
@@ -620,7 +636,7 @@ Tensor* tensor_sub(Tensor *t1, Tensor *t2) {
   return result;
 }
 
-Tensor* tensor_scale(Tensor *t, double scale) {
+Tensor *tensor_scale(Tensor *t, double scale) {
   Tensor *result = tensor_new(t->rank, t->rows, t->cols);
   if (result == NULL) {
     fprintf(stderr, "tensor_scale: failed to allocate memory");
@@ -670,7 +686,7 @@ Tensor* tensor_scale(Tensor *t, double scale) {
 //   return result;
 // }
 
-Tensor* tensor_multiply(Tensor* t1, Tensor* t2) {
+Tensor *tensor_multiply(Tensor *t1, Tensor *t2) {
   if (t1->rank != t2->rank) {
     fprintf(stderr, "tensor_multiply: tensors must be the same size");
     return NULL;
