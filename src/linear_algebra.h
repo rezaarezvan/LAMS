@@ -1,13 +1,18 @@
 #ifndef LA_H
 #define LA_H
 
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
-// A Linear Algebra library for C
-// Using general structs to represent vectors, matrices and tensors of any
-// dimension
+
+/*
+ * A Linear Algebra library for C
+ *
+ * Using general structs to represent:
+ * vectors, matrices and tensors of any dimension
+ *
+ */
 
 // Vector struct
 
@@ -17,7 +22,6 @@ typedef struct {
 } Vector;
 
 // Matrix struct
-// A matrix is a 2D array of doubles
 
 typedef struct {
   int rows, cols;
@@ -25,7 +29,6 @@ typedef struct {
 } Matrix;
 
 // Tensor struct
-// A tensor is a 3D array of doubles
 
 typedef struct {
   int rank, rows, cols;
@@ -67,7 +70,7 @@ Matrix *matrix_solve_lu(Matrix *A, Matrix *b);
 Tensor *tensor_new(int num_matrices, int rows, int cols);
 void tensor_insert(Tensor *t, Matrix *m, int index);
 void tensor_free(Tensor *t);
-Tensor* tensor_copy(Tensor* t);
+Tensor *tensor_copy(Tensor *t);
 void tensor_print(Tensor *t);
 Tensor *tensor_add(Tensor *t1, Tensor *t2);
 Tensor *tensor_sub(Tensor *t1, Tensor *t2);
