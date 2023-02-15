@@ -266,27 +266,3 @@ float continuous_uniform_cdf(continuous_uniform_t *uni, float x) {
 float normal_cdf(normal_t *nor, float x) {
   return 0.5 * (1 + erf((x - nor->mu) / (nor->sigma * sqrt(2))));
 }
-
-int main() {
-  // Binomial
-  binomial_t bin = {10, 0.5};
-  float res = binomial_mean(&bin);
-
-  // Bernoulli
-  bernoulli_t ber = {0.5};
-
-  // Discrete Uniform
-  discrete_uniform_t dis = {1, 6};
-
-  // Geometric
-  geometric_t geo = {0.5};
-
-  // Hypergeometric
-  hypergeometric_t hyp = {10, 5, 3};
-
-  // Negative Binomial
-  negative_binomial_t neg = {10, 0.5};
-
-  // Poisson
-  poisson_t poi = {5};
-}
