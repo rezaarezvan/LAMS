@@ -176,29 +176,45 @@ double *vector_to_array(Vector *v) {
 // Matrix functions
 // -----------------------------------------------------------------------------
 Matrix *matrix_new(int rows, int cols) {
-  Matrix *result = malloc(sizeof(Matrix));
+  Matrix *result = (Matrix *)malloc(sizeof(Matrix));
+
+  if (result == NULL) {
+    fprintf(stderr, "Error: matrix_new() failed to allocate memory");
+    return NULL;
+  }
 
   result->rows = rows;
   result->cols = cols;
-  result->data = malloc(sizeof(double *) * rows);
+
+  result->data = (double **)malloc(rows * sizeof(double *));
+  if (result->data == NULL) {
+    fprintf(stderr, "Error: matrix_new() failed to allocate memory");
+    return NULL;
+  }
 
   for (int i = 0; i < rows; i++) {
-    result->data[i] = calloc(cols, sizeof(double));
+    result->data[i] = (double *)malloc(cols * sizeof(double));
     if (result->data[i] == NULL) {
       fprintf(stderr,
               "Error: matrix_new() failed to allocate memory for row %d\n", i);
       return NULL;
     }
   }
+
   return result;
 }
 
 void matrix_free(Matrix *m) {
+  if (m == NULL) {
+    return;
+  }
+
   for (int i = 0; i < m->rows; i++) {
     free(m->data[i]);
-    m->data[i] = NULL;
   }
+
   free(m->data);
+  free(m);
 }
 
 Matrix *matrix_copy(Matrix *m) {
@@ -298,8 +314,9 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
 
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < b->cols; j++) {
+      result->data[i][j] = 0;
       for (int k = 0; k < a->cols; k++) {
-        result->data[i][j] += a->data[i][k] * b->data[k][j];
+        result->data[i][j] += round(a->data[i][k] * b->data[k][j]);
       }
     }
   }
@@ -360,21 +377,11 @@ void matrix_set(Matrix *m, double data[], int size) {
     return;
   }
 
-  m->data = malloc(m->rows * sizeof(double *));
-
+  // Check if we have allocated memory for the matrix
   if (m->data == NULL) {
-    fprintf(stderr,
-            "Error: matrix_set() failed to allocate memory for matrix data");
+    fprintf(stderr, "Error: matrix_set() cannot set matrix with no allocated "
+                    "memory for data");
     return;
-  }
-
-  for (int i = 0; i < m->rows; i++) {
-    m->data[i] = malloc(m->cols * sizeof(double));
-    if (m->data[i] == NULL) {
-      fprintf(stderr,
-              "Error: matrix_set() failed to allocate memory for matrix data");
-      return;
-    }
   }
 
   for (int i = 0; i < size; i++) {
@@ -398,7 +405,13 @@ Matrix *matrix_identity(int size) {
   Matrix *result = matrix_new(size, size);
 
   for (int i = 0; i < size; i++) {
-    result->data[i][i] = 1;
+    for (int j = 0; j < size; j++) {
+      if (i == j) {
+        result->data[i][j] = 1.0;
+      } else {
+        result->data[i][j] = 0.0;
+      }
+    }
   }
 
   return result;
@@ -557,7 +570,6 @@ void tensor_free(Tensor *t) {
     matrix_free(&(t->data[i]));
   }
   free(t->data);
-  free(t);
 }
 
 Tensor *tensor_copy(Tensor *src) {
