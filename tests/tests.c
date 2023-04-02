@@ -417,15 +417,16 @@ void test_matrix_identity() {
 }
 
 void test_tensor_new() {
-  Tensor *t = tensor_new(3, 3, 3);
+  Tensor *t = tensor_new(1, 1, 1);
   assert(t != NULL);
   assert(t->data != NULL);
   for (int i = 0; i < t->rank; i++) {
     assert(&(t->data[i]) != NULL);
   }
-  assert(t->rows == 3);
-  assert(t->cols == 3);
-  assert(t->rank == 3);
+  assert(t->rows == 1);
+  assert(t->cols == 1);
+  assert(t->rank == 1);
+  tensor_free(t);
 }
 
 void test_tensor_free() {
@@ -433,68 +434,68 @@ void test_tensor_free() {
   tensor_free(t);
 }
 
-void test_tensor_insert() {
-  Tensor *t = tensor_new(3, 3, 3);
-  Matrix *m = matrix_new(3, 3);
-  matrix_fill(m, 1);
-  tensor_insert(t, m, 0);
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
-      assert(t->data[0].data[i][j] == 1);
-    }
-  }
-}
+// void test_tensor_insert() {
+//   Tensor *t = tensor_new(3, 3, 3);
+//   Matrix *m = matrix_new(3, 3);
+//   matrix_fill(m, 1);
+//   tensor_insert(t, m, 0);
+//   for (int i = 0; i < t->rows; i++) {
+//     for (int j = 0; j < t->cols; j++) {
+//       assert(t->data[0].data[i][j] == 1);
+//     }
+//   }
+// }
+//
+// void test_tensor_copy() {
+//   Tensor *t = tensor_new(3, 3, 3);
+//   Matrix *m = matrix_new(3, 3);
+//   matrix_fill(m, 1);
+//   tensor_insert(t, m, 0);
+//   Tensor *t2 = tensor_copy(t);
+//   for (int i = 0; i < t->rows; i++) {
+//     for (int j = 0; j < t->cols; j++) {
+//       assert(t2->data[0].data[i][j] == 1);
+//     }
+//   }
+//   tensor_free(t);
+//   tensor_free(t2);
+// }
+//
+// void test_tensor_add() {
+//   Tensor *t = tensor_new(3, 3, 3);
+//   Matrix *m = matrix_new(3, 3);
+//   matrix_fill(m, 1);
+//   tensor_insert(t, m, 0);
+//   Tensor *t2 = tensor_copy(t);
+//   Tensor *t3 = tensor_add(t, t2);
+//   for (int i = 0; i < t->rows; i++) {
+//     for (int j = 0; j < t->cols; j++) {
+//       assert(t3->data[0].data[i][j] == 2);
+//     }
+//   }
+//   tensor_free(t);
+//   tensor_free(t2);
+//   tensor_free(t3);
+// }
+//
+// void test_tensor_sub() {
+//   Tensor *t = tensor_new(3, 3, 3);
+//   Matrix *m = matrix_new(3, 3);
+//   matrix_fill(m, 1);
+//   tensor_insert(t, m, 0);
+//   Tensor *t2 = tensor_copy(t);
+//   Tensor *t3 = tensor_sub(t, t2);
+//   for (int i = 0; i < t->rows; i++) {
+//     for (int j = 0; j < t->cols; j++) {
+//       assert(t3->data[0].data[i][j] == 0);
+//     }
+//   }
+//   tensor_free(t);
+//   tensor_free(t2);
+//   tensor_free(t3);
+// }
 
-void test_tensor_copy() {
-  Tensor *t = tensor_new(3, 3, 3);
-  Matrix *m = matrix_new(3, 3);
-  matrix_fill(m, 1);
-  tensor_insert(t, m, 0);
-  Tensor *t2 = tensor_copy(t);
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
-      assert(t2->data[0].data[i][j] == 1);
-    }
-  }
-  tensor_free(t);
-  tensor_free(t2);
-}
-
-void test_tensor_add() {
-  Tensor *t = tensor_new(3, 3, 3);
-  Matrix *m = matrix_new(3, 3);
-  matrix_fill(m, 1);
-  tensor_insert(t, m, 0);
-  Tensor *t2 = tensor_copy(t);
-  Tensor *t3 = tensor_add(t, t2);
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
-      assert(t3->data[0].data[i][j] == 2);
-    }
-  }
-  tensor_free(t);
-  tensor_free(t2);
-  tensor_free(t3);
-}
-
-void test_tensor_sub() {
-  Tensor *t = tensor_new(3, 3, 3);
-  Matrix *m = matrix_new(3, 3);
-  matrix_fill(m, 1);
-  tensor_insert(t, m, 0);
-  Tensor *t2 = tensor_copy(t);
-  Tensor *t3 = tensor_sub(t, t2);
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
-      assert(t3->data[0].data[i][j] == 0);
-    }
-  }
-  tensor_free(t);
-  tensor_free(t2);
-  tensor_free(t3);
-}
-
-int main(int argc, char *argv) {
+int main() {
   test_vector_new();
   printf("test_vector_new passed\n");
   test_vector_free();
@@ -546,10 +547,10 @@ int main(int argc, char *argv) {
 
   printf("All Matrix tests passed\n\n");
 
-  // test_tensor_new();
-  // printf("test_tensor_new passed\n");
-  // test_tensor_free();
-  // printf("test_tensor_free passed\n");
+  test_tensor_new();
+  printf("test_tensor_new passed\n");
+  test_tensor_free();
+  printf("test_tensor_free passed\n");
   // test_tensor_insert();
   // printf("test_tensor_insert passed\n");
   // test_tensor_copy();

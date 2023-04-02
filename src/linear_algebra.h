@@ -32,7 +32,7 @@ typedef struct {
 
 typedef struct {
   int rank, rows, cols;
-  Matrix *data;
+  double ***data;
 } Tensor;
 
 // Vector functions
