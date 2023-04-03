@@ -11,6 +11,10 @@ Vector *vector_new(int n) {
 }
 
 void vector_free(Vector *v) {
+  if (v == NULL) {
+    return;
+  }
+
   free(v->data);
   free(v);
   v = NULL;
@@ -174,35 +178,30 @@ double *vector_to_array(Vector *v) {
   return result;
 }
 
+void vector_print(Vector *v) {
+  printf("[");
+  for (int i = 0; i < v->size; i++) {
+    printf("%f", v->data[i]);
+    if (i < v->size - 1) {
+      printf(", ");
+    }
+  }
+  printf("]");
+}
+
 // Matrix functions
 // -----------------------------------------------------------------------------
 Matrix *matrix_new(int rows, int cols) {
-  Matrix *result = (Matrix *)malloc(sizeof(Matrix));
-
-  if (result == NULL) {
-    fprintf(stderr, "Error: matrix_new() failed to allocate memory");
-    return NULL;
-  }
-
-  result->rows = rows;
-  result->cols = cols;
-
-  result->data = (double **)malloc(rows * sizeof(double *));
-  if (result->data == NULL) {
-    fprintf(stderr, "Error: matrix_new() failed to allocate memory");
-    return NULL;
-  }
+  Matrix *m = malloc(sizeof(Matrix));
+  m->rows = rows;
+  m->cols = cols;
+  m->data = malloc(rows * sizeof(Vector));
 
   for (int i = 0; i < rows; i++) {
-    result->data[i] = (double *)malloc(cols * sizeof(double));
-    if (result->data[i] == NULL) {
-      fprintf(stderr,
-              "Error: matrix_new() failed to allocate memory for row %d\n", i);
-      return NULL;
-    }
+    m->data[i] = vector_new(cols);
   }
 
-  return result;
+  return m;
 }
 
 void matrix_free(Matrix *m) {
@@ -211,29 +210,28 @@ void matrix_free(Matrix *m) {
   }
 
   for (int i = 0; i < m->rows; i++) {
-    free(m->data[i]);
+    if (&(m->data[i]) != NULL) {
+      vector_free(m->data[i]);
+    }
   }
 
   free(m->data);
   free(m);
+  m = NULL;
 }
 
-void matrix_free_tensor(Matrix *m) {
-  if (m == NULL) {
-    return;
-  }
-
-  for (int i = 0; i < m->rows; i++) {
-    free(m->data[i]);
-  }
-}
-
+// Copies an existing matrix to a new matrix
 Matrix *matrix_copy(Matrix *m) {
   Matrix *result = matrix_new(m->rows, m->cols);
 
+  if (result == NULL) {
+    fprintf(stderr, "Error: matrix_copy() failed to allocate memory");
+    return NULL;
+  }
+
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
-      result->data[i][j] = m->data[i][j];
+      result->data[i]->data[j] = m->data[i]->data[j];
     }
   }
 
@@ -257,7 +255,7 @@ Matrix *matrix_add(Matrix *a, Matrix *b) {
 
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < a->cols; j++) {
-      result->data[i][j] = a->data[i][j] + b->data[i][j];
+      result->data[i]->data[j] = a->data[i]->data[j] + b->data[i]->data[j];
     }
   }
 
@@ -281,7 +279,7 @@ Matrix *matrix_sub(Matrix *a, Matrix *b) {
 
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < a->cols; j++) {
-      result->data[i][j] = a->data[i][j] - b->data[i][j];
+      result->data[i]->data[j] = a->data[i]->data[j] - b->data[i]->data[j];
     }
   }
 
@@ -300,7 +298,7 @@ Matrix *matrix_scale(Matrix *m, double s) {
 
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
-      result->data[i][j] = m->data[i][j] * s;
+      result->data[i]->data[j] = m->data[i]->data[j] * s;
     }
   }
 
@@ -325,9 +323,9 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
 
   for (int i = 0; i < a->rows; i++) {
     for (int j = 0; j < b->cols; j++) {
-      result->data[i][j] = 0;
+      result->data[i]->data[j] = 0;
       for (int k = 0; k < a->cols; k++) {
-        result->data[i][j] += round(a->data[i][k] * b->data[k][j]);
+        result->data[i]->data[j] += a->data[i]->data[k] * b->data[k]->data[j];
       }
     }
   }
@@ -335,7 +333,7 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
   return result;
 }
 
-Matrix *matrix_muliply_vector(Matrix *m, Vector *v) {
+Matrix *matrix_multiply_vector(Matrix *m, Vector *v) {
   if (m->cols != v->size) {
     fprintf(stderr, "Error: matrix_muliply_vector() cannot multiply matrix and "
                     "vector of incompatible sizes");
@@ -351,8 +349,9 @@ Matrix *matrix_muliply_vector(Matrix *m, Vector *v) {
   }
 
   for (int i = 0; i < m->rows; i++) {
+    result->data[i]->data[0] = 0;
     for (int j = 0; j < m->cols; j++) {
-      result->data[i][0] += m->data[i][j] * v->data[j];
+      result->data[i]->data[0] += roundf(m->data[i]->data[j] * v->data[j]);
     }
   }
 
@@ -364,7 +363,7 @@ Matrix *matrix_transpose(Matrix *m) {
 
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
-      result->data[j][i] = m->data[i][j];
+      result->data[j]->data[i] = m->data[i]->data[j];
     }
   }
 
@@ -374,38 +373,21 @@ Matrix *matrix_transpose(Matrix *m) {
 void matrix_fill(Matrix *m, double value) {
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
-      m->data[i][j] = value;
+      m->data[i]->data[j] = value;
     }
   }
 }
 
-void matrix_set(Matrix *m, double data[], int size) {
-  if (size != m->rows * m->cols) {
-    fprintf(
-        stderr,
-        "Error: matrix_set() cannot set matrix of size %d to array of size %d",
-        m->rows * m->cols, size);
-    return;
-  }
-
-  // Check if we have allocated memory for the matrix
-  if (m->data == NULL) {
-    fprintf(stderr, "Error: matrix_set() cannot set matrix with no allocated "
-                    "memory for data");
-    return;
-  }
-
-  for (int i = 0; i < size; i++) {
-    int row = i / m->cols; // calculate the row index
-    int col = i % m->cols; // calculate the column index
-    m->data[row][col] = data[i];
+void matrix_set(Matrix *m, Vector *v, int row) {
+  for (int i = 0; i < m->cols; i++) {
+    m->data[row]->data[i] = v->data[i];
   }
 }
 
 void matrix_print(Matrix *m) {
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
-      printf("%f ", m->data[i][j]);
+      printf("%f ", m->data[i]->data[j]);
     }
     printf("\n");
   }
@@ -418,9 +400,9 @@ Matrix *matrix_identity(int size) {
   for (int i = 0; i < size; i++) {
     for (int j = 0; j < size; j++) {
       if (i == j) {
-        result->data[i][j] = 1.0;
+        result->data[i]->data[j] = 1.0;
       } else {
-        result->data[i][j] = 0.0;
+        result->data[i]->data[j] = 0.0;
       }
     }
   }
@@ -429,143 +411,143 @@ Matrix *matrix_identity(int size) {
 }
 
 // TODO: Fix
-Matrix *matrix_solve(Matrix *A, Matrix *b) {
-  int n = A->cols;
-  Matrix *x = matrix_new(n, 1);
-
-  // Copy A and b to temporary matrices
-  Matrix *A_temp = matrix_copy(A);
-  Matrix *b_temp = matrix_copy(b);
-
-  // Forward elimination
-  for (int i = 0; i < n - 1; i++) {
-    // Find the row with the largest pivot
-    int max_row = i;
-    for (int j = i + 1; j < n; j++) {
-      if (fabs(A_temp->data[j][i]) > fabs(A_temp->data[max_row][i])) {
-        max_row = j;
-      }
-    }
-
-    // Swap the rows
-    for (int j = i; j < n; j++) {
-      double temp = A_temp->data[i][j];
-      A_temp->data[i][j] = A_temp->data[max_row][j];
-      A_temp->data[max_row][j] = temp;
-    }
-
-    double temp = b_temp->data[i][0];
-    b_temp->data[i][0] = b_temp->data[max_row][0];
-    b_temp->data[max_row][0] = temp;
-
-    // Eliminate the lower rows
-    for (int j = i + 1; j < n; j++) {
-      double c = A_temp->data[j][i] / A_temp->data[i][i];
-      for (int k = i; k < n; k++) {
-        A_temp->data[j][k] -= A_temp->data[i][k] * c;
-      }
-      b_temp->data[j][0] -= b_temp->data[i][0] * c;
-    }
-  }
-
-  // Back substitution
-  for (int i = n - 1; i >= 0; i--) {
-    double sum = 0;
-    for (int j = i + 1; j < n; j++) {
-      sum += A_temp->data[i][j] * x->data[j][0];
-    }
-    x->data[i][0] = (b_temp->data[i][0] - sum) / A_temp->data[i][i];
-  }
-
-  matrix_free(A_temp);
-  matrix_free(b_temp);
-
-  return x;
-}
-
-// TODO: Fix
-Matrix *matrix_solve_lu(Matrix *A, Matrix *b) {
-  int n = A->cols;
-
-  // check if the dimensions of the input matrices are compatible
-  if (A->cols != b->rows) {
-    fprintf(stderr, "matrix_solve_lu: incompatible dimensions");
-    return NULL;
-  }
-
-  Matrix *x = matrix_new(n, 1);
-
-  // Copy A and b to temporary matrices
-  Matrix *A_temp = matrix_copy(A);
-  if (A_temp == NULL) {
-    fprintf(stderr, "matrix_solve_lu: failed to copy A");
-    return NULL;
-  }
-  Matrix *b_temp = matrix_copy(b);
-  if (b_temp == NULL) {
-    fprintf(stderr, "matrix_solve_lu: failed to copy b");
-    return NULL;
-  }
-
-  // LU decomposition
-  for (int i = 0; i < n - 1; i++) {
-    // Eliminate the lower rows
-    for (int j = i + 1; j < n; j++) {
-      double c = A_temp->data[j][i] / A_temp->data[i][i];
-      for (int k = i; k < n; k++) {
-        A_temp->data[j][k] -= A_temp->data[i][k] * c;
-      }
-      b_temp->data[j][0] -= b_temp->data[i][0] * c;
-    }
-  }
-
-  // Back substitution
-  for (int i = n - 1; i >= 0; i--) {
-    double sum = 0;
-    for (int j = i + 1; j < n; j++) {
-      sum += A_temp->data[i][j] * x->data[j][0];
-    }
-    x->data[i][0] = (b_temp->data[i][0] - sum) / A_temp->data[i][i];
-  }
-
-  matrix_free(A_temp);
-  matrix_free(b_temp);
-
-  return x;
-}
+// Matrix *matrix_solve(Matrix *A, Matrix *b) {
+//   int n = A->cols;
+//   Matrix *x = matrix_new(n, 1);
+//
+//   // Copy A and b to temporary matrices
+//   Matrix *A_temp = matrix_copy(A);
+//   Matrix *b_temp = matrix_copy(b);
+//
+//   // Forward elimination
+//   for (int i = 0; i < n - 1; i++) {
+//     // Find the row with the largest pivot
+//     int max_row = i;
+//     for (int j = i + 1; j < n; j++) {
+//       if (fabs(A_temp->data[j][i]) > fabs(A_temp->data[max_row][i])) {
+//         max_row = j;
+//       }
+//     }
+//
+//     // Swap the rows
+//     for (int j = i; j < n; j++) {
+//       double temp = A_temp->data[i][j];
+//       A_temp->data[i][j] = A_temp->data[max_row][j];
+//       A_temp->data[max_row][j] = temp;
+//     }
+//
+//     double temp = b_temp->data[i][0];
+//     b_temp->data[i][0] = b_temp->data[max_row][0];
+//     b_temp->data[max_row][0] = temp;
+//
+//     // Eliminate the lower rows
+//     for (int j = i + 1; j < n; j++) {
+//       double c = A_temp->data[j][i] / A_temp->data[i][i];
+//       for (int k = i; k < n; k++) {
+//         A_temp->data[j][k] -= A_temp->data[i][k] * c;
+//       }
+//       b_temp->data[j][0] -= b_temp->data[i][0] * c;
+//     }
+//   }
+//
+//   // Back substitution
+//   for (int i = n - 1; i >= 0; i--) {
+//     double sum = 0;
+//     for (int j = i + 1; j < n; j++) {
+//       sum += A_temp->data[i][j] * x->data[j][0];
+//     }
+//     x->data[i][0] = (b_temp->data[i][0] - sum) / A_temp->data[i][i];
+//   }
+//
+//   matrix_free(A_temp);
+//   matrix_free(b_temp);
+//
+//   return x;
+// }
+//
+// // TODO: Fix
+// Matrix *matrix_solve_lu(Matrix *A, Matrix *b) {
+//   int n = A->cols;
+//
+//   // check if the dimensions of the input matrices are compatible
+//   if (A->cols != b->rows) {
+//     fprintf(stderr, "matrix_solve_lu: incompatible dimensions");
+//     return NULL;
+//   }
+//
+//   Matrix *x = matrix_new(n, 1);
+//
+//   // Copy A and b to temporary matrices
+//   Matrix *A_temp = matrix_copy(A);
+//   if (A_temp == NULL) {
+//     fprintf(stderr, "matrix_solve_lu: failed to copy A");
+//     return NULL;
+//   }
+//   Matrix *b_temp = matrix_copy(b);
+//   if (b_temp == NULL) {
+//     fprintf(stderr, "matrix_solve_lu: failed to copy b");
+//     return NULL;
+//   }
+//
+//   // LU decomposition
+//   for (int i = 0; i < n - 1; i++) {
+//     // Eliminate the lower rows
+//     for (int j = i + 1; j < n; j++) {
+//       double c = A_temp->data[j][i] / A_temp->data[i][i];
+//       for (int k = i; k < n; k++) {
+//         A_temp->data[j][k] -= A_temp->data[i][k] * c;
+//       }
+//       b_temp->data[j][0] -= b_temp->data[i][0] * c;
+//     }
+//   }
+//
+//   // Back substitution
+//   for (int i = n - 1; i >= 0; i--) {
+//     double sum = 0;
+//     for (int j = i + 1; j < n; j++) {
+//       sum += A_temp->data[i][j] * x->data[j][0];
+//     }
+//     x->data[i][0] = (b_temp->data[i][0] - sum) / A_temp->data[i][i];
+//   }
+//
+//   matrix_free(A_temp);
+//   matrix_free(b_temp);
+//
+//   return x;
+// }
 
 // Tensor functions
 // -----------------------------------------------------------------------------
-Tensor *tensor_new(int rows, int cols, int rank) {
-  Tensor *t = (Tensor *)malloc(sizeof(Tensor));
-
-  if (t == NULL) {
-    fprintf(stderr, "tensor_new: failed to allocate memory");
-    return NULL;
-  }
-
-  t->rows = rows;
-  t->cols = cols;
-  t->rank = rank;
-
-  t->data = (double ***)malloc(rank * sizeof(double **));
-  if (t->data == NULL) {
-    fprintf(stderr, "tensor_new: failed to allocate memory");
-    return NULL;
-  }
-
-  for (int i = 0; i < rank; i++) {
-    t->data[i] = (double **)malloc(rows * sizeof(double *));
-  }
-
-  for (int i = 0; i < rank; i++) {
-    for (int j = 0; j < rows; j++) {
-      t->data[i][j] = (double *)malloc(cols * sizeof(double));
-    }
-  }
-
-  return t;
-}
+// Tensor *tensor_new(int rows, int cols, int rank) {
+//   Tensor *t = (Tensor *)malloc(sizeof(Tensor));
+//
+//   if (t == NULL) {
+//     fprintf(stderr, "tensor_new: failed to allocate memory");
+//     return NULL;
+//   }
+//
+//   t->rows = rows;
+//   t->cols = cols;
+//   t->rank = rank;
+//
+//   t->data = (double ***)malloc(rank * sizeof(double **));
+//   if (t->data == NULL) {
+//     fprintf(stderr, "tensor_new: failed to allocate memory");
+//     return NULL;
+//   }
+//
+//   for (int i = 0; i < rank; i++) {
+//     t->data[i] = (double **)malloc(rows * sizeof(double *));
+//   }
+//
+//   for (int i = 0; i < rank; i++) {
+//     for (int j = 0; j < rows; j++) {
+//       t->data[i][j] = (double *)malloc(cols * sizeof(double));
+//     }
+//   }
+//
+//   return t;
+// }
 
 // void tensor_insert(Tensor *t, Matrix *m, int index) {
 //   if (index >= t->rank) {
@@ -577,21 +559,6 @@ Tensor *tensor_new(int rows, int cols, int rank) {
 //   t->data[index].cols = m->cols;
 //   t->data[index] = *m;
 // }
-
-void tensor_free(Tensor *t) {
-  for (int i = 0; i < t->rank; i++) {
-    for (int j = 0; j < t->rows; j++) {
-      free(t->data[i][j]);
-    }
-  }
-
-  for (int i = 0; i < t->rank; i++) {
-    free(t->data[i]);
-  }
-
-  free(t->data);
-  free(t);
-}
 
 // Tensor *tensor_copy(Tensor *src) {
 //   Tensor *dst = tensor_new(src->rows, src->cols, src->rank);

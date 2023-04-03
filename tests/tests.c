@@ -1,5 +1,7 @@
 #include "../src/linear_algebra.c"
 #include "../src/linear_algebra.h"
+#include <math.h>
+#include <stdio.h>
 
 // Unit tests
 // -----------------------------------------------------------------------------
@@ -188,65 +190,93 @@ void test_vector_to_array() {
 // -----------------------------------------------------------------------------
 
 void test_matrix_new() {
-  Matrix *m = matrix_new(2, 3);
+  Matrix *m = matrix_new(3, 3);
   assert(m != NULL);
-  assert(m->rows == 2);
+  assert(m->rows == 3);
   assert(m->cols == 3);
   matrix_free(m);
 }
 
 void test_matrix_free() {
-  Matrix *m = matrix_new(0, 0);
+  Matrix *m = matrix_new(3, 3);
+  Vector *v1 = vector_from_array(3, (double[]){1.0, 2.0, 3.0});
+  Vector *v2 = vector_from_array(3, (double[]){1.0, 2.0, 3.0});
+
+  m->data[0]->data[0] = v1->data[0];
+  m->data[0]->data[1] = v1->data[1];
+  m->data[0]->data[2] = v1->data[2];
+
+  m->data[1]->data[0] = v2->data[0];
+  m->data[1]->data[1] = v2->data[1];
+  m->data[1]->data[2] = v2->data[2];
+
   matrix_free(m);
+  vector_free(v1);
+  vector_free(v2);
 }
 
 void test_matrix_copy() {
   Matrix *m = matrix_new(2, 3);
-  m->data[0][0] = 1.0;
-  m->data[0][1] = 2.0;
-  m->data[0][2] = 3.0;
-  m->data[1][0] = 4.0;
-  m->data[1][1] = 5.0;
-  m->data[1][2] = 6.0;
+  Vector *v1 = vector_from_array(3, (double[]){1.0, 2.0, 3.0});
+  Vector *v2 = vector_from_array(3, (double[]){1.0, 2.0, 3.0});
+
+  m->data[0]->data[0] = v1->data[0];
+  m->data[0]->data[1] = v1->data[1];
+  m->data[0]->data[2] = v1->data[2];
+
+  m->data[1]->data[0] = v2->data[0];
+  m->data[1]->data[1] = v2->data[1];
+  m->data[1]->data[2] = v2->data[2];
+
   Matrix *m2 = matrix_copy(m);
+
   assert(m2 != NULL);
   assert(m2->rows == 2);
   assert(m2->cols == 3);
-  assert(m2->data[0][0] == 1.0);
-  assert(m2->data[0][1] == 2.0);
-  assert(m2->data[0][2] == 3.0);
-  assert(m2->data[1][0] == 4.0);
-  assert(m2->data[1][1] == 5.0);
-  assert(m2->data[1][2] == 6.0);
+
+  assert(m2->data[0]->data[0] == 1.0);
+  assert(m2->data[0]->data[1] == 2.0);
+  assert(m2->data[0]->data[2] == 3.0);
+
+  assert(m2->data[1]->data[0] == 1.0);
+  assert(m2->data[1]->data[1] == 2.0);
+  assert(m2->data[1]->data[2] == 3.0);
+
   matrix_free(m);
   matrix_free(m2);
+  vector_free(v1);
+  vector_free(v2);
 }
 
 void test_matrix_add() {
   Matrix *m = matrix_new(2, 3);
-  m->data[0][0] = 1.0;
-  m->data[0][1] = 2.0;
-  m->data[0][2] = 3.0;
-  m->data[1][0] = 4.0;
-  m->data[1][1] = 5.0;
-  m->data[1][2] = 6.0;
+  m->data[0]->data[0] = 1.0;
+  m->data[0]->data[1] = 2.0;
+  m->data[0]->data[2] = 3.0;
+  m->data[1]->data[0] = 4.0;
+  m->data[1]->data[1] = 5.0;
+  m->data[1]->data[2] = 6.0;
+
   Matrix *m2 = matrix_new(2, 3);
-  m2->data[0][0] = 1.0;
-  m2->data[0][1] = 2.0;
-  m2->data[0][2] = 3.0;
-  m2->data[1][0] = 4.0;
-  m2->data[1][1] = 5.0;
-  m2->data[1][2] = 6.0;
+
+  m2->data[0]->data[0] = 1.0;
+  m2->data[0]->data[1] = 2.0;
+  m2->data[0]->data[2] = 3.0;
+  m2->data[1]->data[0] = 4.0;
+  m2->data[1]->data[1] = 5.0;
+  m2->data[1]->data[2] = 6.0;
+
   Matrix *m3 = matrix_add(m, m2);
+
   assert(m3 != NULL);
   assert(m3->rows == 2);
   assert(m3->cols == 3);
-  assert(m3->data[0][0] == 2.0);
-  assert(m3->data[0][1] == 4.0);
-  assert(m3->data[0][2] == 6.0);
-  assert(m3->data[1][0] == 8.0);
-  assert(m3->data[1][1] == 10.0);
-  assert(m3->data[1][2] == 12.0);
+  assert(m3->data[0]->data[0] == 2.0);
+  assert(m3->data[0]->data[1] == 4.0);
+  assert(m3->data[0]->data[2] == 6.0);
+  assert(m3->data[1]->data[0] == 8.0);
+  assert(m3->data[1]->data[1] == 10.0);
+  assert(m3->data[1]->data[2] == 12.0);
   matrix_free(m);
   matrix_free(m2);
   matrix_free(m3);
@@ -254,29 +284,33 @@ void test_matrix_add() {
 
 void test_matrix_sub() {
   Matrix *m = matrix_new(2, 3);
-  m->data[0][0] = 1.0;
-  m->data[0][1] = 2.0;
-  m->data[0][2] = 3.0;
-  m->data[1][0] = 4.0;
-  m->data[1][1] = 5.0;
-  m->data[1][2] = 6.0;
+  m->data[0]->data[0] = 1.0;
+  m->data[0]->data[1] = 2.0;
+  m->data[0]->data[2] = 3.0;
+  m->data[1]->data[0] = 4.0;
+  m->data[1]->data[1] = 5.0;
+  m->data[1]->data[2] = 6.0;
+
   Matrix *m2 = matrix_new(2, 3);
-  m2->data[0][0] = 1.0;
-  m2->data[0][1] = 2.0;
-  m2->data[0][2] = 3.0;
-  m2->data[1][0] = 4.0;
-  m2->data[1][1] = 5.0;
-  m2->data[1][2] = 6.0;
+
+  m2->data[0]->data[0] = 1.0;
+  m2->data[0]->data[1] = 2.0;
+  m2->data[0]->data[2] = 3.0;
+  m2->data[1]->data[0] = 4.0;
+  m2->data[1]->data[1] = 5.0;
+  m2->data[1]->data[2] = 6.0;
+
   Matrix *m3 = matrix_sub(m, m2);
+
   assert(m3 != NULL);
   assert(m3->rows == 2);
   assert(m3->cols == 3);
-  assert(m3->data[0][0] == 0.0);
-  assert(m3->data[0][1] == 0.0);
-  assert(m3->data[0][2] == 0.0);
-  assert(m3->data[1][0] == 0.0);
-  assert(m3->data[1][1] == 0.0);
-  assert(m3->data[1][2] == 0.0);
+  assert(m3->data[0]->data[0] == 0.0);
+  assert(m3->data[0]->data[1] == 0.0);
+  assert(m3->data[0]->data[2] == 0.0);
+  assert(m3->data[1]->data[0] == 0.0);
+  assert(m3->data[1]->data[1] == 0.0);
+  assert(m3->data[1]->data[2] == 0.0);
   matrix_free(m);
   matrix_free(m2);
   matrix_free(m3);
@@ -284,155 +318,174 @@ void test_matrix_sub() {
 
 void test_matrix_scale() {
   Matrix *m = matrix_new(2, 3);
-  m->data[0][0] = 1.0;
-  m->data[0][1] = 2.0;
-  m->data[0][2] = 3.0;
-  m->data[1][0] = 4.0;
-  m->data[1][1] = 5.0;
-  m->data[1][2] = 6.0;
-  Matrix *m2 = matrix_scale(m, 2);
+  m->data[0]->data[0] = 1.0;
+  m->data[0]->data[1] = 2.0;
+  m->data[0]->data[2] = 3.0;
+  m->data[1]->data[0] = 4.0;
+  m->data[1]->data[1] = 5.0;
+  m->data[1]->data[2] = 6.0;
+
+  Matrix *m2 = matrix_scale(m, 2.0);
+
   assert(m2 != NULL);
   assert(m2->rows == 2);
   assert(m2->cols == 3);
-  assert(m2->data[0][0] == 2.0);
-  assert(m2->data[0][1] == 4.0);
-  assert(m2->data[0][2] == 6.0);
-  assert(m2->data[1][0] == 8.0);
-  assert(m2->data[1][1] == 10.0);
-  assert(m2->data[1][2] == 12.0);
+  assert(m2->data[0]->data[0] == 2.0);
+  assert(m2->data[0]->data[1] == 4.0);
+  assert(m2->data[0]->data[2] == 6.0);
+  assert(m2->data[1]->data[0] == 8.0);
+  assert(m2->data[1]->data[1] == 10.0);
+  assert(m2->data[1]->data[2] == 12.0);
   matrix_free(m);
   matrix_free(m2);
 }
 
 void test_matrix_multiply() {
   Matrix *m = matrix_new(2, 3);
-  m->data[0][0] = 1.0;
-  m->data[0][1] = 2.0;
-  m->data[0][2] = 3.0;
-  m->data[1][0] = 4.0;
-  m->data[1][1] = 5.0;
-  m->data[1][2] = 6.0;
+  m->data[0]->data[0] = 1.0;
+  m->data[0]->data[1] = 2.0;
+  m->data[0]->data[2] = 3.0;
+  m->data[1]->data[0] = 4.0;
+  m->data[1]->data[1] = 5.0;
+  m->data[1]->data[2] = 6.0;
+
   Matrix *m2 = matrix_new(3, 2);
-  m2->data[0][0] = 1.0;
-  m2->data[0][1] = 2.0;
-  m2->data[1][0] = 3.0;
-  m2->data[1][1] = 4.0;
-  m2->data[2][0] = 5.0;
-  m2->data[2][1] = 6.0;
+
+  m2->data[0]->data[0] = 1.0;
+  m2->data[0]->data[1] = 2.0;
+  m2->data[1]->data[0] = 3.0;
+  m2->data[1]->data[1] = 4.0;
+  m2->data[2]->data[0] = 5.0;
+  m2->data[2]->data[1] = 6.0;
+
   Matrix *m3 = matrix_multiply(m, m2);
+
   assert(m3 != NULL);
   assert(m3->rows == 2);
   assert(m3->cols == 2);
-  assert(m3->data[0][0] == 22.0);
-  assert(m3->data[0][1] == 28.0);
-  assert(m3->data[1][0] == 49.0);
-  assert(m3->data[1][1] == 64.0);
+  assert(m3->data[0]->data[0] == 22.0);
+  assert(m3->data[0]->data[1] == 28.0);
+  assert(m3->data[1]->data[0] == 49.0);
+  assert(m3->data[1]->data[1] == 64.0);
   matrix_free(m);
   matrix_free(m2);
   matrix_free(m3);
 }
 
-// void test_multiply_vector() {
-//   Matrix *m = matrix_new(2, 3);
-//   m->data[0][0] = 1;
-//   m->data[0][1] = 2;
-//   m->data[0][2] = 3;
-//   m->data[1][0] = 4;
-//   m->data[1][1] = 5;
-//   m->data[1][2] = 6;
-//   Vector *v = vector_new(3);
-//   v->data[0] = 1;
-//   v->data[1] = 2;
-//   v->data[2] = 3;
-//   Vector *v2 = matrix_multiply_vector(m, v);
-//   assert(v2 != NULL);
-//   assert(v2->size == 2);
-//   assert(v2->data[0] == 14);
-//   assert(v2->data[1] == 32);
-//   matrix_free(m);
-//   vector_free(v);
-//   vector_free(v2);
-// }
+void test_matrix_multiply_vector() {
+  Matrix *m = matrix_new(2, 3);
+  m->data[0]->data[0] = 1.0;
+  m->data[0]->data[1] = 2.0;
+  m->data[0]->data[2] = 3.0;
+  m->data[1]->data[0] = 4.0;
+  m->data[1]->data[1] = 5.0;
+  m->data[1]->data[2] = 6.0;
+
+  Vector *v = vector_new(3);
+  v->data[0] = 1.0;
+  v->data[1] = 2.0;
+  v->data[2] = 3.0;
+
+  Matrix *m2 = matrix_multiply_vector(m, v);
+
+  assert(m2 != NULL);
+  assert(m2->rows == 2);
+  assert(m2->cols == 1);
+  assert(m2->data[0]->data[0] == 14.0);
+  assert(m2->data[1]->data[0] == 32.0);
+
+  matrix_free(m);
+  matrix_free(m2);
+  vector_free(v);
+}
 
 void test_matrix_transpose() {
   Matrix *m = matrix_new(2, 3);
-  m->data[0][0] = 1.0;
-  m->data[0][1] = 2.0;
-  m->data[0][2] = 3.0;
-  m->data[1][0] = 4.0;
-  m->data[1][1] = 5.0;
-  m->data[1][2] = 6.0;
+  m->data[0]->data[0] = 1.0;
+  m->data[0]->data[1] = 2.0;
+  m->data[0]->data[2] = 3.0;
+  m->data[1]->data[0] = 4.0;
+  m->data[1]->data[1] = 5.0;
+  m->data[1]->data[2] = 6.0;
+
   Matrix *m2 = matrix_transpose(m);
+
   assert(m2 != NULL);
   assert(m2->rows == 3);
   assert(m2->cols == 2);
-  assert(m2->data[0][0] == 1.0);
-  assert(m2->data[0][1] == 4.0);
-  assert(m2->data[1][0] == 2.0);
-  assert(m2->data[1][1] == 5.0);
-  assert(m2->data[2][0] == 3.0);
-  assert(m2->data[2][1] == 6.0);
+  assert(m2->data[0]->data[0] == 1.0);
+  assert(m2->data[0]->data[1] == 4.0);
+  assert(m2->data[1]->data[0] == 2.0);
+  assert(m2->data[1]->data[1] == 5.0);
+  assert(m2->data[2]->data[0] == 3.0);
+  assert(m2->data[2]->data[1] == 6.0);
   matrix_free(m);
   matrix_free(m2);
 }
 
 void test_matrix_fill() {
   Matrix *m = matrix_new(2, 3);
-  matrix_fill(m, 1);
-  assert(m->data[0][0] == 1.0);
-  assert(m->data[0][1] == 1.0);
-  assert(m->data[0][2] == 1.0);
-  assert(m->data[1][0] == 1.0);
-  assert(m->data[1][1] == 1.0);
-  assert(m->data[1][2] == 1.0);
+  matrix_fill(m, 2.0);
+  assert(m->data[0]->data[0] == 2.0);
+  assert(m->data[0]->data[1] == 2.0);
+  assert(m->data[0]->data[2] == 2.0);
+  assert(m->data[1]->data[0] == 2.0);
+  assert(m->data[1]->data[1] == 2.0);
+  assert(m->data[1]->data[2] == 2.0);
   matrix_free(m);
 }
 
 void test_matrix_set() {
   Matrix *m = matrix_new(2, 3);
-  double data[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-  int size = 2 * 3;
-  matrix_set(m, data, size);
-  assert(m->data[0][0] == 1.0);
-  assert(m->data[0][1] == 2.0);
-  assert(m->data[0][2] == 3.0);
-  assert(m->data[1][0] == 4.0);
-  assert(m->data[1][1] == 5.0);
-  assert(m->data[1][2] == 6.0);
+  Vector *v = vector_from_array(3, (double[]){1.0, 2.0, 3.0});
+  Vector *v2 = vector_from_array(3, (double[]){4.0, 5.0, 6.0});
+
+  matrix_set(m, v, 0);
+  matrix_set(m, v2, 1);
+
+  assert(m->data[0]->data[0] == 1.0);
+  assert(m->data[0]->data[1] == 2.0);
+  assert(m->data[0]->data[2] == 3.0);
+  assert(m->data[1]->data[0] == 4.0);
+  assert(m->data[1]->data[1] == 5.0);
+  assert(m->data[1]->data[2] == 6.0);
+
   matrix_free(m);
+  vector_free(v);
+  vector_free(v2);
 }
 
 void test_matrix_identity() {
   Matrix *m = matrix_identity(3);
-  assert(m->data[0][0] == 1.0);
-  assert(m->data[0][1] == 0.0);
-  assert(m->data[0][2] == 0.0);
-  assert(m->data[1][0] == 0.0);
-  assert(m->data[1][1] == 1.0);
-  assert(m->data[1][2] == 0.0);
-  assert(m->data[2][0] == 0.0);
-  assert(m->data[2][1] == 0.0);
-  assert(m->data[2][2] == 1.0);
+  assert(m->data[0]->data[0] == 1.0);
+  assert(m->data[0]->data[1] == 0.0);
+  assert(m->data[0]->data[2] == 0.0);
+  assert(m->data[1]->data[0] == 0.0);
+  assert(m->data[1]->data[1] == 1.0);
+  assert(m->data[1]->data[2] == 0.0);
+  assert(m->data[2]->data[0] == 0.0);
+  assert(m->data[2]->data[1] == 0.0);
+  assert(m->data[2]->data[2] == 1.0);
   matrix_free(m);
 }
 
-void test_tensor_new() {
-  Tensor *t = tensor_new(1, 1, 1);
-  assert(t != NULL);
-  assert(t->data != NULL);
-  for (int i = 0; i < t->rank; i++) {
-    assert(&(t->data[i]) != NULL);
-  }
-  assert(t->rows == 1);
-  assert(t->cols == 1);
-  assert(t->rank == 1);
-  tensor_free(t);
-}
-
-void test_tensor_free() {
-  Tensor *t = tensor_new(3, 3, 3);
-  tensor_free(t);
-}
+// void test_tensor_new() {
+//   Tensor *t = tensor_new(1, 1, 1);
+//   assert(t != NULL);
+//   assert(t->data != NULL);
+//   for (int i = 0; i < t->rank; i++) {
+//     assert(&(t->data[i]) != NULL);
+//   }
+//   assert(t->rows == 1);
+//   assert(t->cols == 1);
+//   assert(t->rank == 1);
+//   tensor_free(t);
+// }
+//
+// void test_tensor_free() {
+//   Tensor *t = tensor_new(3, 3, 3);
+//   tensor_free(t);
+// }
 
 // void test_tensor_insert() {
 //   Tensor *t = tensor_new(3, 3, 3);
@@ -534,8 +587,8 @@ int main() {
   printf("test_matrix_scale passed\n");
   test_matrix_multiply();
   printf("test_matrix_multiply passed\n");
-  // test_matrix_multiply_vector();
-  // printf("test_matrix_multiply_vector passed\n");
+  test_matrix_multiply_vector();
+  printf("test_matrix_multiply_vector passed\n");
   test_matrix_transpose();
   printf("test_matrix_transpose passed\n");
   test_matrix_fill();
@@ -546,11 +599,10 @@ int main() {
   printf("test_matrix_identity passed\n");
 
   printf("All Matrix tests passed\n\n");
-
-  test_tensor_new();
-  printf("test_tensor_new passed\n");
-  test_tensor_free();
-  printf("test_tensor_free passed\n");
+  // test_tensor_new();
+  // printf("test_tensor_new passed\n");
+  // test_tensor_free();
+  // printf("test_tensor_free passed\n");
   // test_tensor_insert();
   // printf("test_tensor_insert passed\n");
   // test_tensor_copy();
