@@ -2,7 +2,7 @@
 
 // Vector functions
 // -----------------------------------------------------------------------------
-Vector *vector_new(int n) {
+Vector *vector_new(size_t n) {
   Vector *v = malloc(sizeof(Vector));
   v->size = n;
   v->data = malloc(n * sizeof(double));
@@ -19,7 +19,7 @@ void vector_free(Vector *v) {
   v = NULL;
 }
 
-Vector *vector_copy(Vector *v) {
+Vector *vector_copy(const Vector *v) {
   Vector *v_copy = vector_new(v->size);
 
   if (v_copy == NULL) {
@@ -34,7 +34,7 @@ Vector *vector_copy(Vector *v) {
   return v_copy;
 }
 
-Vector *vector_add(Vector *a, Vector *b) {
+Vector *vector_add(const Vector *a, const Vector *b) {
   if (a->size != b->size) {
     fprintf(stderr, "Error: vector_add() vectors must be the same size");
     return NULL;
@@ -54,7 +54,7 @@ Vector *vector_add(Vector *a, Vector *b) {
   return result;
 }
 
-Vector *vector_sub(Vector *a, Vector *b) {
+Vector *vector_sub(const Vector *a, const Vector *b) {
   if (a->size != b->size) {
     fprintf(stderr, "Error: vector_sub() vectors must be the same size");
     return NULL;
@@ -74,7 +74,7 @@ Vector *vector_sub(Vector *a, Vector *b) {
   return result;
 }
 
-Vector *vector_scale(Vector *v, double c) {
+Vector *vector_scale(const Vector *v, double c) {
   Vector *result = vector_new(v->size);
 
   if (result == NULL) {
@@ -89,7 +89,7 @@ Vector *vector_scale(Vector *v, double c) {
   return result;
 }
 
-double vector_dot(Vector *a, Vector *b) {
+double vector_dot(const Vector *a, const Vector *b) {
   double result = 0;
 
   if (a->size != b->size) {
@@ -104,7 +104,7 @@ double vector_dot(Vector *a, Vector *b) {
   return result;
 }
 
-double vector_norm(Vector *v) {
+double vector_norm(const Vector *v) {
   double result = 0;
 
   for (int i = 0; i < v->size; i++) {
@@ -114,7 +114,7 @@ double vector_norm(Vector *v) {
   return sqrt(result);
 }
 
-Vector *vector_normalize(Vector *v) {
+Vector *vector_normalize(const Vector *v) {
   Vector *result = vector_new(v->size);
 
   if (result == NULL) {
@@ -131,7 +131,7 @@ Vector *vector_normalize(Vector *v) {
   return result;
 }
 
-Vector *vector_cross(Vector *a, Vector *b) {
+Vector *vector_cross(const Vector *a, const Vector *b) {
   if (a->size != b->size) {
     fprintf(stderr, "Error: vector_cross() vectors must be the same size");
     return NULL;
@@ -152,7 +152,7 @@ Vector *vector_cross(Vector *a, Vector *b) {
   return result;
 }
 
-Vector *vector_from_array(int size, double array[]) {
+Vector *vector_from_array(size_t size, const double *array) {
   Vector *result = vector_new(size);
 
   if (result == NULL) {
@@ -166,8 +166,7 @@ Vector *vector_from_array(int size, double array[]) {
 
   return result;
 }
-
-double *vector_to_array(Vector *v) {
+double *vector_to_array(const Vector *v) {
   double *result = malloc(sizeof(double) * v->size);
 
   for (int i = 0; i < v->size; i++) {
@@ -177,7 +176,7 @@ double *vector_to_array(Vector *v) {
   return result;
 }
 
-void vector_print(Vector *v) {
+void vector_print(const Vector *v) {
   printf("[");
   for (int i = 0; i < v->size; i++) {
     printf("%f", v->data[i]);
@@ -190,7 +189,7 @@ void vector_print(Vector *v) {
 
 // Matrix functions
 // -----------------------------------------------------------------------------
-Matrix *matrix_new(int rows, int cols) {
+Matrix *matrix_new(size_t rows, size_t cols) {
   Matrix *m = malloc(sizeof(Matrix));
   m->rows = rows;
   m->cols = cols;
@@ -220,7 +219,7 @@ void matrix_free(Matrix *m) {
 }
 
 // Copies an existing matrix to a new matrix
-Matrix *matrix_copy(Matrix *m) {
+Matrix *matrix_copy(const Matrix *m) {
   Matrix *result = matrix_new(m->rows, m->cols);
 
   if (result == NULL) {
@@ -237,7 +236,7 @@ Matrix *matrix_copy(Matrix *m) {
   return result;
 }
 
-Matrix *matrix_add(Matrix *a, Matrix *b) {
+Matrix *matrix_add(const Matrix *a, const Matrix *b) {
   if (a->rows != b->rows && a->cols != b->cols) {
     fprintf(stderr,
             "Error: matrix_add() cannot add matrices of different sizes");
@@ -261,7 +260,7 @@ Matrix *matrix_add(Matrix *a, Matrix *b) {
   return result;
 }
 
-Matrix *matrix_sub(Matrix *a, Matrix *b) {
+Matrix *matrix_sub(const Matrix *a, const Matrix *b) {
   if (a->rows != b->rows && a->cols != b->cols) {
     fprintf(stderr,
             "Error: matrix_sub() cannot subtract matrices of different sizes");
@@ -285,7 +284,7 @@ Matrix *matrix_sub(Matrix *a, Matrix *b) {
   return result;
 }
 
-Matrix *matrix_scale(Matrix *m, double s) {
+Matrix *matrix_scale(const Matrix *m, double s) {
   Matrix *result = matrix_new(m->rows, m->cols);
 
   if (result == NULL) {
@@ -304,7 +303,7 @@ Matrix *matrix_scale(Matrix *m, double s) {
   return result;
 }
 
-Matrix *matrix_multiply(Matrix *a, Matrix *b) {
+Matrix *matrix_multiply(const Matrix *a, const Matrix *b) {
   if (a->cols != b->rows) {
     fprintf(stderr, "Error: matrix_multiply() cannot multiply matrices of "
                     "incompatible sizes");
@@ -332,7 +331,7 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
   return result;
 }
 
-Matrix *matrix_multiply_vector(Matrix *m, Vector *v) {
+Matrix *matrix_multiply_vector(const Matrix *m, const Vector *v) {
   if (m->cols != v->size) {
     fprintf(stderr, "Error: matrix_muliply_vector() cannot multiply matrix and "
                     "vector of incompatible sizes");
@@ -357,7 +356,7 @@ Matrix *matrix_multiply_vector(Matrix *m, Vector *v) {
   return result;
 }
 
-Matrix *matrix_transpose(Matrix *m) {
+Matrix *matrix_transpose(const Matrix *m) {
   Matrix *result = matrix_new(m->cols, m->rows);
 
   for (int i = 0; i < m->rows; i++) {
@@ -377,13 +376,13 @@ void matrix_fill(Matrix *m, double value) {
   }
 }
 
-void matrix_set(Matrix *m, Vector *v, int row) {
+void matrix_set(Matrix *m, const Vector *v, size_t row) {
   for (int i = 0; i < m->cols; i++) {
     m->data[row]->data[i] = v->data[i];
   }
 }
 
-void matrix_print(Matrix *m) {
+void matrix_print(const Matrix *m) {
   for (int i = 0; i < m->rows; i++) {
     for (int j = 0; j < m->cols; j++) {
       printf("%f ", m->data[i]->data[j]);
@@ -393,7 +392,7 @@ void matrix_print(Matrix *m) {
   printf("\n");
 }
 
-Matrix *matrix_identity(int size) {
+Matrix *matrix_identity(size_t size) {
   Matrix *result = matrix_new(size, size);
 
   for (int i = 0; i < size; i++) {
@@ -411,7 +410,7 @@ Matrix *matrix_identity(int size) {
 
 // Tensor functions
 // -----------------------------------------------------------------------------
-Tensor *tensor_new(int rows, int cols, int rank) {
+Tensor *tensor_new(size_t rows, size_t cols, size_t rank) {
   Tensor *t = malloc(sizeof(Tensor));
   t->rows = rows;
   t->cols = cols;
@@ -438,7 +437,7 @@ void tensor_free(Tensor *t) {
   free(t);
 }
 
-void tensor_insert(Tensor *t, Matrix *m, int index) {
+void tensor_insert(Tensor *t, const Matrix *m, size_t index) {
   if (index >= t->rank) {
     fprintf(stderr, "tensor_insert: index out of bounds");
     return;
@@ -451,7 +450,7 @@ void tensor_insert(Tensor *t, Matrix *m, int index) {
   }
 }
 
-Tensor *tensor_copy(Tensor *src) {
+Tensor *tensor_copy(const Tensor *src) {
   Tensor *result = tensor_new(src->rows, src->cols, src->rank);
 
   for (int i = 0; i < src->rank; i++) {
@@ -465,14 +464,14 @@ Tensor *tensor_copy(Tensor *src) {
   return result;
 }
 
-void tensor_print(Tensor *t) {
+void tensor_print(const Tensor *t) {
   for (int i = 0; i < t->rank; i++) {
     printf("Matrix %d\n", i);
     matrix_print(t->data[i]);
   }
 }
 
-Tensor *tensor_add(Tensor *t1, Tensor *t2) {
+Tensor *tensor_add(const Tensor *t1, const Tensor *t2) {
   if (t1->rank != t2->rank) {
     fprintf(stderr, "tensor_add: tensors must have the same rank");
     return NULL;
@@ -498,7 +497,7 @@ Tensor *tensor_add(Tensor *t1, Tensor *t2) {
   return result;
 }
 
-Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
+Tensor *tensor_sub(const Tensor *t1, const Tensor *t2) {
   if (t1->rank != t2->rank) {
     fprintf(stderr, "tensor_sub: tensors must have the same rank");
     return NULL;
@@ -522,78 +521,3 @@ Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
 
   return result;
 }
-
-// Tensor *tensor_scale(Tensor *t, double scale) {
-//   Tensor *result = tensor_new(t->rank, t->rows, t->cols);
-//   if (result == NULL) {
-//     fprintf(stderr, "tensor_scale: failed to allocate memory");
-//     return NULL;
-//   }
-//
-//   for (int i = 0; i < t->rank; i++) {
-//     Matrix *temp;
-//     temp = matrix_scale(&(t->data[i]), scale);
-//
-//     if (temp == NULL) {
-//       printf("Error: unable to scale tensor\n");
-//       return NULL;
-//     }
-//
-//     tensor_insert(result, temp, i);
-//   }
-//
-//   return result;
-// }
-
-// Tensor* tensor_dot(Tensor *t1, Tensor *t2) {
-//   if (t1->rank != t2->rank) {
-//     // handle error
-//     printf("Error: tensors must be the same size\n");
-//     return NULL;
-//   }
-//
-//   Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
-//   if (result == NULL) {
-//     // handle error
-//     printf("Error: unable to allocate memory for tensor\n");
-//     return NULL;
-//   }
-//
-//   for (int i = 0; i < t1->rank; i++) {
-//     Matrix *temp;
-//     temp = matrix_dot(&(t1->data[i]), &(t2->data[i]));
-//     if (temp == NULL) {
-//       // handle error
-//       printf("Error: unable to add tensors\n");
-//       return NULL;
-//     }
-//     tensor_insert(result, temp, i);
-//   }
-//
-//   return result;
-// }
-
-// Tensor *tensor_multiply(Tensor *t1, Tensor *t2) {
-//   if (t1->rank != t2->rank) {
-//     fprintf(stderr, "tensor_multiply: tensors must be the same size");
-//     return NULL;
-//   }
-//
-//   Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
-//   if (result == NULL) {
-//     fprintf(stderr, "tensor_multiply: failed to allocate memory");
-//     return NULL;
-//   }
-//
-//   for (int i = 0; i < t1->rank; i++) {
-//     Matrix *temp;
-//     temp = matrix_multiply(&(t1->data[i]), &(t2->data[i]));
-//     if (temp == NULL) {
-//       fprintf(stderr, "tensor_multiply: unable to multiply tensors");
-//       return NULL;
-//     }
-//     tensor_insert(result, temp, i);
-//   }
-//
-//   return result;
-// }
