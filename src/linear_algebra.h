@@ -42,6 +42,7 @@ Vector *vector_copy(Vector *v);
 Vector *vector_add(Vector *v1, Vector *v2);
 Vector *vector_sub(Vector *v1, Vector *v2);
 Vector *vector_scale(Vector *v, double s);
+Vector *vector_multiply(Vector *v1, Vector *v2);
 double vector_dot(Vector *v1, Vector *v2);
 double vector_norm(Vector *v);
 Vector *vector_normalize(Vector *v);
@@ -63,20 +64,18 @@ void matrix_fill(Matrix *m, double s);
 void matrix_set(Matrix *m, Vector *v, int row);
 void matrix_print(Matrix *m);
 Matrix *matrix_identity(int n);
-// Matrix *matrix_solve(Matrix *A, Matrix *b);
-// Matrix *matrix_solve_lu(Matrix *A, Matrix *b);
 
 // Tensor functions
 Tensor *tensor_new(int num_matrices, int rows, int cols);
-void tensor_insert(Tensor *t, Matrix *m, int index);
 void tensor_free(Tensor *t);
 Tensor *tensor_copy(Tensor *t);
-void tensor_print(Tensor *t);
+void tensor_insert(Tensor *t, Matrix *m, int index);
 Tensor *tensor_add(Tensor *t1, Tensor *t2);
 Tensor *tensor_sub(Tensor *t1, Tensor *t2);
 Tensor *tensor_scale(Tensor *t, double s);
 Tensor *tensor_dot(Tensor *t1, Tensor *t2);
 Tensor *tensor_multiply(Tensor *t1, Tensor *t2);
 Tensor *tensor_transpose(Tensor *t);
+void tensor_print(Tensor *t);
 
 #endif

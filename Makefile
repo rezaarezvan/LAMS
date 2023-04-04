@@ -7,9 +7,12 @@ OUTPUT = output
 # Default target
 all: $(OUTPUT)
 
-# Compile and run the tests
-$(OUTPUT): $(TEST_SRC)
-	$(CC) -o $(OUTPUT) $(TEST_SRC) $(CFLAGS)
+# Compile the tests
+$(OUTPUT): $(TEST_SRC) src/linear_algebra.c src/stats.c
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(TEST_SRC) src/linear_algebra.c src/stats.c
+
+# Run the tests
+test: $(OUTPUT)
 	./$(OUTPUT)
 
 # Clean up the output file

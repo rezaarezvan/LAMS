@@ -1,5 +1,4 @@
 #include "linear_algebra.h"
-#include <stdio.h>
 
 // Vector functions
 // -----------------------------------------------------------------------------
@@ -410,232 +409,120 @@ Matrix *matrix_identity(int size) {
   return result;
 }
 
-// TODO: Fix
-// Matrix *matrix_solve(Matrix *A, Matrix *b) {
-//   int n = A->cols;
-//   Matrix *x = matrix_new(n, 1);
-//
-//   // Copy A and b to temporary matrices
-//   Matrix *A_temp = matrix_copy(A);
-//   Matrix *b_temp = matrix_copy(b);
-//
-//   // Forward elimination
-//   for (int i = 0; i < n - 1; i++) {
-//     // Find the row with the largest pivot
-//     int max_row = i;
-//     for (int j = i + 1; j < n; j++) {
-//       if (fabs(A_temp->data[j][i]) > fabs(A_temp->data[max_row][i])) {
-//         max_row = j;
-//       }
-//     }
-//
-//     // Swap the rows
-//     for (int j = i; j < n; j++) {
-//       double temp = A_temp->data[i][j];
-//       A_temp->data[i][j] = A_temp->data[max_row][j];
-//       A_temp->data[max_row][j] = temp;
-//     }
-//
-//     double temp = b_temp->data[i][0];
-//     b_temp->data[i][0] = b_temp->data[max_row][0];
-//     b_temp->data[max_row][0] = temp;
-//
-//     // Eliminate the lower rows
-//     for (int j = i + 1; j < n; j++) {
-//       double c = A_temp->data[j][i] / A_temp->data[i][i];
-//       for (int k = i; k < n; k++) {
-//         A_temp->data[j][k] -= A_temp->data[i][k] * c;
-//       }
-//       b_temp->data[j][0] -= b_temp->data[i][0] * c;
-//     }
-//   }
-//
-//   // Back substitution
-//   for (int i = n - 1; i >= 0; i--) {
-//     double sum = 0;
-//     for (int j = i + 1; j < n; j++) {
-//       sum += A_temp->data[i][j] * x->data[j][0];
-//     }
-//     x->data[i][0] = (b_temp->data[i][0] - sum) / A_temp->data[i][i];
-//   }
-//
-//   matrix_free(A_temp);
-//   matrix_free(b_temp);
-//
-//   return x;
-// }
-//
-// // TODO: Fix
-// Matrix *matrix_solve_lu(Matrix *A, Matrix *b) {
-//   int n = A->cols;
-//
-//   // check if the dimensions of the input matrices are compatible
-//   if (A->cols != b->rows) {
-//     fprintf(stderr, "matrix_solve_lu: incompatible dimensions");
-//     return NULL;
-//   }
-//
-//   Matrix *x = matrix_new(n, 1);
-//
-//   // Copy A and b to temporary matrices
-//   Matrix *A_temp = matrix_copy(A);
-//   if (A_temp == NULL) {
-//     fprintf(stderr, "matrix_solve_lu: failed to copy A");
-//     return NULL;
-//   }
-//   Matrix *b_temp = matrix_copy(b);
-//   if (b_temp == NULL) {
-//     fprintf(stderr, "matrix_solve_lu: failed to copy b");
-//     return NULL;
-//   }
-//
-//   // LU decomposition
-//   for (int i = 0; i < n - 1; i++) {
-//     // Eliminate the lower rows
-//     for (int j = i + 1; j < n; j++) {
-//       double c = A_temp->data[j][i] / A_temp->data[i][i];
-//       for (int k = i; k < n; k++) {
-//         A_temp->data[j][k] -= A_temp->data[i][k] * c;
-//       }
-//       b_temp->data[j][0] -= b_temp->data[i][0] * c;
-//     }
-//   }
-//
-//   // Back substitution
-//   for (int i = n - 1; i >= 0; i--) {
-//     double sum = 0;
-//     for (int j = i + 1; j < n; j++) {
-//       sum += A_temp->data[i][j] * x->data[j][0];
-//     }
-//     x->data[i][0] = (b_temp->data[i][0] - sum) / A_temp->data[i][i];
-//   }
-//
-//   matrix_free(A_temp);
-//   matrix_free(b_temp);
-//
-//   return x;
-// }
-
 // Tensor functions
 // -----------------------------------------------------------------------------
-// Tensor *tensor_new(int rows, int cols, int rank) {
-//   Tensor *t = (Tensor *)malloc(sizeof(Tensor));
-//
-//   if (t == NULL) {
-//     fprintf(stderr, "tensor_new: failed to allocate memory");
-//     return NULL;
-//   }
-//
-//   t->rows = rows;
-//   t->cols = cols;
-//   t->rank = rank;
-//
-//   t->data = (double ***)malloc(rank * sizeof(double **));
-//   if (t->data == NULL) {
-//     fprintf(stderr, "tensor_new: failed to allocate memory");
-//     return NULL;
-//   }
-//
-//   for (int i = 0; i < rank; i++) {
-//     t->data[i] = (double **)malloc(rows * sizeof(double *));
-//   }
-//
-//   for (int i = 0; i < rank; i++) {
-//     for (int j = 0; j < rows; j++) {
-//       t->data[i][j] = (double *)malloc(cols * sizeof(double));
-//     }
-//   }
-//
-//   return t;
-// }
+Tensor *tensor_new(int rows, int cols, int rank) {
+  Tensor *t = malloc(sizeof(Tensor));
+  t->rows = rows;
+  t->cols = cols;
+  t->rank = rank;
+  t->data = malloc(rank * sizeof(Matrix));
 
-// void tensor_insert(Tensor *t, Matrix *m, int index) {
-//   if (index >= t->rank) {
-//     fprintf(stderr, "tensor_insert: index out of bounds");
-//     return;
-//   }
-//
-//   t->data[index].rows = m->rows;
-//   t->data[index].cols = m->cols;
-//   t->data[index] = *m;
-// }
+  for (int i = 0; i < rank; i++) {
+    t->data[i] = matrix_new(rows, cols);
+  }
 
-// Tensor *tensor_copy(Tensor *src) {
-//   Tensor *dst = tensor_new(src->rows, src->cols, src->rank);
-//
-//   for (int i = 0; i < src->rank; i++) {
-//     Matrix *temp = matrix_copy(&(src->data[i]));
-//     if (temp == NULL) {
-//       fprintf(stderr, "tensor_copy: failed to allocate memory");
-//       return NULL;
-//     }
-//     dst->data[i] = *temp;
-//   }
-//
-//   return dst;
-// }
-//
-// void tensor_print(Tensor *t) {
-//   for (int i = 0; i < t->rank; i++) {
-//     printf("Tensor rank %d:\n", i);
-//     if (t->data[i].rows == 0 || t->data[i].cols == 0) {
-//       printf("Empty matrix\n");
-//     } else {
-//       matrix_print(&(t->data[i]));
-//     }
-//   }
-// }
-//
-// Tensor *tensor_add(Tensor *t1, Tensor *t2) {
-//   if (t1->rank != t2->rank) {
-//     fprintf(stderr, "tensor_add: tensors must have the same rank");
-//     return NULL;
-//   }
-//
-//   Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
-//   if (result == NULL) {
-//     fprintf(stderr, "tensor_add: failed to allocate memory");
-//     return NULL;
-//   }
-//
-//   for (int i = 0; i < t1->rank; i++) {
-//     Matrix *temp;
-//     temp = matrix_add(&(t1->data[i]), &(t2->data[i]));
-//     if (temp == NULL) {
-//       fprintf(stderr, "tensor_add: failed to allocate memory");
-//       return NULL;
-//     }
-//     tensor_insert(result, temp, i);
-//   }
-//
-//   return result;
-// }
-//
-// Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
-//   if (t1->rank != t2->rank) {
-//     fprintf(stderr, "tensor_sub: tensors must have the same rank");
-//     return NULL;
-//   }
-//
-//   Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
-//   if (result == NULL) {
-//     fprintf(stderr, "tensor_sub: failed to allocate memory");
-//     return NULL;
-//   }
-//
-//   for (int i = 0; i < t1->rank; i++) {
-//     Matrix *temp;
-//     temp = matrix_sub(&(t1->data[i]), &(t2->data[i]));
-//     if (temp == NULL) {
-//       fprintf(stderr, "tensor_sub: failed to allocate memory");
-//       return NULL;
-//     }
-//     tensor_insert(result, temp, i);
-//   }
-//
-//   return result;
-// }
-//
+  return t;
+}
+
+void tensor_free(Tensor *t) {
+  if (t == NULL) {
+    return;
+  }
+
+  for (int i = 0; i < t->rank; i++) {
+    matrix_free(t->data[i]);
+  }
+
+  free(t->data);
+  free(t);
+}
+
+void tensor_insert(Tensor *t, Matrix *m, int index) {
+  if (index >= t->rank) {
+    fprintf(stderr, "tensor_insert: index out of bounds");
+    return;
+  }
+
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
+      t->data[index]->data[i]->data[j] = m->data[i]->data[j];
+    }
+  }
+}
+
+Tensor *tensor_copy(Tensor *src) {
+  Tensor *result = tensor_new(src->rows, src->cols, src->rank);
+
+  for (int i = 0; i < src->rank; i++) {
+    for (int j = 0; j < src->rows; j++) {
+      for (int k = 0; k < src->cols; k++) {
+        result->data[i]->data[j]->data[k] = src->data[i]->data[j]->data[k];
+      }
+    }
+  }
+
+  return result;
+}
+
+void tensor_print(Tensor *t) {
+  for (int i = 0; i < t->rank; i++) {
+    printf("Matrix %d\n", i);
+    matrix_print(t->data[i]);
+  }
+}
+
+Tensor *tensor_add(Tensor *t1, Tensor *t2) {
+  if (t1->rank != t2->rank) {
+    fprintf(stderr, "tensor_add: tensors must have the same rank");
+    return NULL;
+  }
+
+  Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
+  if (result == NULL) {
+    fprintf(stderr, "tensor_add: failed to allocate memory");
+    return NULL;
+  }
+
+  for (int i = 0; i < t1->rank; i++) {
+    Matrix *temp = matrix_add(t1->data[i], t2->data[i]);
+    if (temp == NULL) {
+      fprintf(stderr, "tensor_add: failed to allocate memory");
+      return NULL;
+    }
+
+    tensor_insert(result, temp, i);
+    matrix_free(temp);
+  }
+
+  return result;
+}
+
+Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
+  if (t1->rank != t2->rank) {
+    fprintf(stderr, "tensor_sub: tensors must have the same rank");
+    return NULL;
+  }
+
+  Tensor *result = tensor_new(t1->rank, t1->rows, t1->cols);
+  if (result == NULL) {
+    fprintf(stderr, "tensor_sub: failed to allocate memory");
+    return NULL;
+  }
+
+  for (int i = 0; i < t1->rank; i++) {
+    Matrix *temp = matrix_sub(t1->data[i], t2->data[i]);
+    if (temp == NULL) {
+      fprintf(stderr, "tensor_sub: failed to allocate memory");
+      return NULL;
+    }
+    tensor_insert(result, temp, i);
+    matrix_free(temp);
+  }
+
+  return result;
+}
+
 // Tensor *tensor_scale(Tensor *t, double scale) {
 //   Tensor *result = tensor_new(t->rank, t->rows, t->cols);
 //   if (result == NULL) {

@@ -1,5 +1,4 @@
 #include "stats.h"
-#include <math.h>
 
 // Means
 
