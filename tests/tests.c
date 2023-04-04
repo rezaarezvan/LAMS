@@ -1,4 +1,3 @@
-#include "../src/linear_algebra.c"
 #include "../src/linear_algebra.h"
 
 // Unit tests
@@ -332,27 +331,30 @@ void test_matrix_multiply() {
   matrix_free(m3);
 }
 
-// void test_multiply_vector() {
-//   Matrix *m = matrix_new(2, 3);
-//   m->data[0][0] = 1;
-//   m->data[0][1] = 2;
-//   m->data[0][2] = 3;
-//   m->data[1][0] = 4;
-//   m->data[1][1] = 5;
-//   m->data[1][2] = 6;
-//   Vector *v = vector_new(3);
-//   v->data[0] = 1;
-//   v->data[1] = 2;
-//   v->data[2] = 3;
-//   Vector *v2 = matrix_multiply_vector(m, v);
-//   assert(v2 != NULL);
-//   assert(v2->size == 2);
-//   assert(v2->data[0] == 14);
-//   assert(v2->data[1] == 32);
-//   matrix_free(m);
-//   vector_free(v);
-//   vector_free(v2);
-// }
+void test_matrix_multiply_vector() {
+  Matrix *m = matrix_new(2, 3);
+  m->data[0][0] = 1.0;
+  m->data[0][1] = 2.0;
+  m->data[0][2] = 3.0;
+  m->data[1][0] = 4.0;
+  m->data[1][1] = 5.0;
+  m->data[1][2] = 6.0;
+  Vector *v = vector_new(3);
+  v->data[0] = 1.0;
+  v->data[1] = 2.0;
+  v->data[2] = 3.0;
+
+  Matrix *res = matrix_multiply_vector(m, v);
+  assert(res != NULL);
+  assert(res->rows == 2);
+  assert(res->cols == 1);
+  assert(res->data[0][0] == 14.0);
+  assert(res->data[1][0] == 32.0);
+
+  matrix_free(res);
+  matrix_free(m);
+  vector_free(v);
+}
 
 void test_matrix_transpose() {
   Matrix *m = matrix_new(2, 3);
@@ -434,66 +436,75 @@ void test_tensor_free() {
   tensor_free(t);
 }
 
-// void test_tensor_insert() {
-//   Tensor *t = tensor_new(3, 3, 3);
-//   Matrix *m = matrix_new(3, 3);
-//   matrix_fill(m, 1);
-//   tensor_insert(t, m, 0);
-//   for (int i = 0; i < t->rows; i++) {
-//     for (int j = 0; j < t->cols; j++) {
-//       assert(t->data[0].data[i][j] == 1);
-//     }
-//   }
-// }
-//
-// void test_tensor_copy() {
-//   Tensor *t = tensor_new(3, 3, 3);
-//   Matrix *m = matrix_new(3, 3);
-//   matrix_fill(m, 1);
-//   tensor_insert(t, m, 0);
-//   Tensor *t2 = tensor_copy(t);
-//   for (int i = 0; i < t->rows; i++) {
-//     for (int j = 0; j < t->cols; j++) {
-//       assert(t2->data[0].data[i][j] == 1);
-//     }
-//   }
-//   tensor_free(t);
-//   tensor_free(t2);
-// }
-//
-// void test_tensor_add() {
-//   Tensor *t = tensor_new(3, 3, 3);
-//   Matrix *m = matrix_new(3, 3);
-//   matrix_fill(m, 1);
-//   tensor_insert(t, m, 0);
-//   Tensor *t2 = tensor_copy(t);
-//   Tensor *t3 = tensor_add(t, t2);
-//   for (int i = 0; i < t->rows; i++) {
-//     for (int j = 0; j < t->cols; j++) {
-//       assert(t3->data[0].data[i][j] == 2);
-//     }
-//   }
-//   tensor_free(t);
-//   tensor_free(t2);
-//   tensor_free(t3);
-// }
-//
-// void test_tensor_sub() {
-//   Tensor *t = tensor_new(3, 3, 3);
-//   Matrix *m = matrix_new(3, 3);
-//   matrix_fill(m, 1);
-//   tensor_insert(t, m, 0);
-//   Tensor *t2 = tensor_copy(t);
-//   Tensor *t3 = tensor_sub(t, t2);
-//   for (int i = 0; i < t->rows; i++) {
-//     for (int j = 0; j < t->cols; j++) {
-//       assert(t3->data[0].data[i][j] == 0);
-//     }
-//   }
-//   tensor_free(t);
-//   tensor_free(t2);
-//   tensor_free(t3);
-// }
+void test_tensor_insert() {
+  Tensor *t = tensor_new(3, 3, 3);
+  Matrix *m = matrix_new(3, 3);
+  matrix_fill(m, 1);
+  tensor_insert(t, m, 0);
+
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
+      assert(t->data[0][i][j] == 1);
+    }
+  }
+
+  tensor_free(t);
+  matrix_free(m);
+}
+
+void test_tensor_copy() {
+  Tensor *t = tensor_new(3, 3, 3);
+  Matrix *m = matrix_new(3, 3);
+  matrix_fill(m, 1);
+  tensor_insert(t, m, 0);
+  Tensor *t2 = tensor_copy(t);
+
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
+      assert(t2->data[0][i][j] == 1);
+    }
+  }
+
+  tensor_free(t);
+  tensor_free(t2);
+  matrix_free(m);
+}
+
+void test_tensor_add() {
+  Tensor *t = tensor_new(3, 3, 3);
+  Matrix *m = matrix_new(3, 3);
+  matrix_fill(m, 1);
+  tensor_insert(t, m, 0);
+  Tensor *t2 = tensor_copy(t);
+  Tensor *t3 = tensor_add(t, t2);
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
+      assert(t3->data[0][i][j] == 2);
+    }
+  }
+  tensor_free(t);
+  tensor_free(t2);
+  tensor_free(t3);
+  matrix_free(m);
+}
+
+void test_tensor_sub() {
+  Tensor *t = tensor_new(3, 3, 3);
+  Matrix *m = matrix_new(3, 3);
+  matrix_fill(m, 1);
+  tensor_insert(t, m, 0);
+  Tensor *t2 = tensor_copy(t);
+  Tensor *t3 = tensor_sub(t, t2);
+  for (int i = 0; i < t->rows; i++) {
+    for (int j = 0; j < t->cols; j++) {
+      assert(t3->data[0][i][j] == 0);
+    }
+  }
+  tensor_free(t);
+  tensor_free(t2);
+  tensor_free(t3);
+  matrix_free(m);
+}
 
 int main() {
   test_vector_new();
@@ -518,7 +529,8 @@ int main() {
   printf("test_vector_from_array passed\n");
   test_vector_to_array();
   printf("test_vector_to_array passed\n");
-  printf("All Vector tests passed\n\n");
+
+  printf("\nAll Vector tests passed\n\n");
 
   test_matrix_new();
   printf("test_matrix_new passed\n");
@@ -534,8 +546,8 @@ int main() {
   printf("test_matrix_scale passed\n");
   test_matrix_multiply();
   printf("test_matrix_multiply passed\n");
-  // test_matrix_multiply_vector();
-  // printf("test_matrix_multiply_vector passed\n");
+  test_matrix_multiply_vector();
+  printf("test_matrix_multiply_vector passed\n");
   test_matrix_transpose();
   printf("test_matrix_transpose passed\n");
   test_matrix_fill();
@@ -545,18 +557,20 @@ int main() {
   test_matrix_identity();
   printf("test_matrix_identity passed\n");
 
-  printf("All Matrix tests passed\n\n");
+  printf("\nAll Matrix tests passed\n\n");
 
   test_tensor_new();
   printf("test_tensor_new passed\n");
   test_tensor_free();
   printf("test_tensor_free passed\n");
-  // test_tensor_insert();
-  // printf("test_tensor_insert passed\n");
-  // test_tensor_copy();
-  // printf("test_tensor_copy passed\n");
-  // test_tensor_add();
-  // printf("test_tensor_add passed\n");
-  // test_tensor_sub();
-  // printf("test_tensor_sub passed\n");
+  test_tensor_insert();
+  printf("test_tensor_insert passed\n");
+  test_tensor_copy();
+  printf("test_tensor_copy passed\n");
+  test_tensor_add();
+  printf("test_tensor_add passed\n");
+  test_tensor_sub();
+  printf("test_tensor_sub passed\n");
+
+  printf("\nAll Tensor tests passed\n\n");
 }

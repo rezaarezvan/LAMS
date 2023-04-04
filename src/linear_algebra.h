@@ -57,7 +57,7 @@ Matrix *matrix_add(Matrix *m1, Matrix *m2);
 Matrix *matrix_sub(Matrix *m1, Matrix *m2);
 Matrix *matrix_scale(Matrix *m, double s);
 Matrix *matrix_multiply(Matrix *m1, Matrix *m2);
-Vector *matrix_multiply_vector(Matrix *m, Vector *v);
+Matrix *matrix_multiply_vector(Matrix *m, Vector *v);
 Matrix *matrix_transpose(Matrix *m);
 void matrix_fill(Matrix *m, double s);
 void matrix_set(Matrix *m, double data[], int size);
