@@ -3,7 +3,7 @@
 
 // Vector functions
 // -----------------------------------------------------------------------------
-Vector *vector_new(int n) {
+Vector *vector_new(uint32_t n) {
   Vector *v = malloc(sizeof(Vector));
   v->size = n;
   v->data = malloc(sizeof *v->data * n);
@@ -24,7 +24,7 @@ Vector *vector_copy(Vector *v) {
     return NULL;
   }
 
-  for (int i = 0; i < v->size; i++) {
+  for (uint32_t i = 0; i < v->size; i++) {
     v_copy->data[i] = v->data[i];
   }
 
@@ -44,7 +44,7 @@ Vector *vector_add(Vector *a, Vector *b) {
     return NULL;
   }
 
-  for (int i = 0; i < a->size; i++) {
+  for (uint32_t i = 0; i < a->size; i++) {
     result->data[i] = a->data[i] + b->data[i];
   }
 
@@ -64,7 +64,7 @@ Vector *vector_sub(Vector *a, Vector *b) {
     return NULL;
   }
 
-  for (int i = 0; i < a->size; i++) {
+  for (uint32_t i = 0; i < a->size; i++) {
     result->data[i] = a->data[i] - b->data[i];
   }
 
@@ -79,7 +79,7 @@ Vector *vector_scale(Vector *v, double c) {
     return NULL;
   }
 
-  for (int i = 0; i < v->size; i++) {
+  for (uint32_t i = 0; i < v->size; i++) {
     result->data[i] = v->data[i] * c;
   }
 
@@ -94,7 +94,7 @@ double vector_dot(Vector *a, Vector *b) {
     return 0;
   }
 
-  for (int i = 0; i < a->size; i++) {
+  for (uint32_t i = 0; i < a->size; i++) {
     result += a->data[i] * b->data[i];
   }
 
@@ -104,7 +104,7 @@ double vector_dot(Vector *a, Vector *b) {
 double vector_norm(Vector *v) {
   double result = 0;
 
-  for (int i = 0; i < v->size; i++) {
+  for (uint32_t i = 0; i < v->size; i++) {
     result += v->data[i] * v->data[i];
   }
 
@@ -121,7 +121,7 @@ Vector *vector_normalize(Vector *v) {
 
   double norm = vector_norm(v);
 
-  for (int i = 0; i < v->size; i++) {
+  for (uint32_t i = 0; i < v->size; i++) {
     result->data[i] = v->data[i] / norm;
   }
 
@@ -141,7 +141,7 @@ Vector *vector_cross(Vector *a, Vector *b) {
     return NULL;
   }
 
-  for (int i = 0; i < a->size; i++) {
+  for (uint32_t i = 0; i < a->size; i++) {
     result->data[i] = a->data[(i + 1) % 3] * b->data[(i + 2) % 3] -
                       a->data[(i + 2) % 3] * b->data[(i + 1) % 3];
   }
@@ -149,7 +149,7 @@ Vector *vector_cross(Vector *a, Vector *b) {
   return result;
 }
 
-Vector *vector_from_array(int size, double array[]) {
+Vector *vector_from_array(uint32_t size, double array[]) {
   Vector *result = vector_new(size);
 
   if (result == NULL) {
@@ -157,7 +157,7 @@ Vector *vector_from_array(int size, double array[]) {
     return NULL;
   }
 
-  for (int i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     result->data[i] = array[i];
   }
 
@@ -167,7 +167,7 @@ Vector *vector_from_array(int size, double array[]) {
 double *vector_to_array(Vector *v) {
   double *result = malloc(v->size * sizeof *result);
 
-  for (int i = 0; i < v->size; i++) {
+  for (uint32_t i = 0; i < v->size; i++) {
     result[i] = v->data[i];
   }
 
@@ -176,7 +176,7 @@ double *vector_to_array(Vector *v) {
 
 // Matrix functions
 // -----------------------------------------------------------------------------
-Matrix *matrix_new(int rows, int cols) {
+Matrix *matrix_new(uint32_t rows, uint32_t cols) {
   Matrix *result = malloc(sizeof(Matrix));
 
   if (result == NULL) {
@@ -193,7 +193,7 @@ Matrix *matrix_new(int rows, int cols) {
     return NULL;
   }
 
-  for (int i = 0; i < rows; i++) {
+  for (uint32_t i = 0; i < rows; i++) {
     result->data[i] = malloc(sizeof *result->data[i] * cols);
     if (result->data[i] == NULL) {
       fprintf(stderr,
@@ -210,7 +210,7 @@ void matrix_free(Matrix *m) {
     return;
   }
 
-  for (int i = 0; i < m->rows; i++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
     free(m->data[i]);
   }
 
@@ -223,7 +223,7 @@ void matrix_free_tensor(Matrix *m) {
     return;
   }
 
-  for (int i = 0; i < m->rows; i++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
     free(m->data[i]);
   }
 }
@@ -231,8 +231,8 @@ void matrix_free_tensor(Matrix *m) {
 Matrix *matrix_copy(Matrix *m) {
   Matrix *result = matrix_new(m->rows, m->cols);
 
-  for (int i = 0; i < m->rows; i++) {
-    for (int j = 0; j < m->cols; j++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
+    for (uint32_t j = 0; j < m->cols; j++) {
       result->data[i][j] = m->data[i][j];
     }
   }
@@ -255,8 +255,8 @@ Matrix *matrix_add(Matrix *a, Matrix *b) {
     return NULL;
   }
 
-  for (int i = 0; i < a->rows; i++) {
-    for (int j = 0; j < a->cols; j++) {
+  for (uint32_t i = 0; i < a->rows; i++) {
+    for (uint32_t j = 0; j < a->cols; j++) {
       result->data[i][j] = a->data[i][j] + b->data[i][j];
     }
   }
@@ -279,8 +279,8 @@ Matrix *matrix_sub(Matrix *a, Matrix *b) {
     return NULL;
   }
 
-  for (int i = 0; i < a->rows; i++) {
-    for (int j = 0; j < a->cols; j++) {
+  for (uint32_t i = 0; i < a->rows; i++) {
+    for (uint32_t j = 0; j < a->cols; j++) {
       result->data[i][j] = a->data[i][j] - b->data[i][j];
     }
   }
@@ -298,8 +298,8 @@ Matrix *matrix_scale(Matrix *m, double s) {
     return NULL;
   }
 
-  for (int i = 0; i < m->rows; i++) {
-    for (int j = 0; j < m->cols; j++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
+    for (uint32_t j = 0; j < m->cols; j++) {
       result->data[i][j] = m->data[i][j] * s;
     }
   }
@@ -323,10 +323,10 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
     return NULL;
   }
 
-  for (int i = 0; i < a->rows; i++) {
-    for (int j = 0; j < b->cols; j++) {
+  for (uint32_t i = 0; i < a->rows; i++) {
+    for (uint32_t j = 0; j < b->cols; j++) {
       result->data[i][j] = 0;
-      for (int k = 0; k < a->cols; k++) {
+      for (uint32_t k = 0; k < a->cols; k++) {
         result->data[i][j] += round(a->data[i][k] * b->data[k][j]);
       }
     }
@@ -350,9 +350,9 @@ Matrix *matrix_multiply_vector(Matrix *m, Vector *v) {
     return NULL;
   }
 
-  for (int i = 0; i < m->rows; i++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
     result->data[i][0] = 0;
-    for (int j = 0; j < m->cols; j++) {
+    for (uint32_t j = 0; j < m->cols; j++) {
       result->data[i][0] += m->data[i][j] * v->data[j];
     }
   }
@@ -363,8 +363,8 @@ Matrix *matrix_multiply_vector(Matrix *m, Vector *v) {
 Matrix *matrix_transpose(Matrix *m) {
   Matrix *result = matrix_new(m->cols, m->rows);
 
-  for (int i = 0; i < m->rows; i++) {
-    for (int j = 0; j < m->cols; j++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
+    for (uint32_t j = 0; j < m->cols; j++) {
       result->data[j][i] = m->data[i][j];
     }
   }
@@ -373,14 +373,14 @@ Matrix *matrix_transpose(Matrix *m) {
 }
 
 void matrix_fill(Matrix *m, double value) {
-  for (int i = 0; i < m->rows; i++) {
-    for (int j = 0; j < m->cols; j++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
+    for (uint32_t j = 0; j < m->cols; j++) {
       m->data[i][j] = value;
     }
   }
 }
 
-void matrix_set(Matrix *m, double data[], int size) {
+void matrix_set(Matrix *m, double data[], uint32_t size) {
   if (size != m->rows * m->cols) {
     fprintf(
         stderr,
@@ -396,16 +396,16 @@ void matrix_set(Matrix *m, double data[], int size) {
     return;
   }
 
-  for (int i = 0; i < size; i++) {
-    int row = i / m->cols; // calculate the row index
-    int col = i % m->cols; // calculate the column index
+  for (uint32_t i = 0; i < size; i++) {
+    uint32_t row = i / m->cols; // calculate the row index
+    uint32_t col = i % m->cols; // calculate the column index
     m->data[row][col] = data[i];
   }
 }
 
 void matrix_print(Matrix *m) {
-  for (int i = 0; i < m->rows; i++) {
-    for (int j = 0; j < m->cols; j++) {
+  for (uint32_t i = 0; i < m->rows; i++) {
+    for (uint32_t j = 0; j < m->cols; j++) {
       printf("%f ", m->data[i][j]);
     }
     printf("\n");
@@ -413,11 +413,11 @@ void matrix_print(Matrix *m) {
   printf("\n");
 }
 
-Matrix *matrix_identity(int size) {
+Matrix *matrix_identity(uint32_t size) {
   Matrix *result = matrix_new(size, size);
 
-  for (int i = 0; i < size; i++) {
-    for (int j = 0; j < size; j++) {
+  for (uint32_t i = 0; i < size; i++) {
+    for (uint32_t j = 0; j < size; j++) {
       if (i == j) {
         result->data[i][j] = 1.0;
       } else {
@@ -431,7 +431,7 @@ Matrix *matrix_identity(int size) {
 
 // Tensor functions
 // -----------------------------------------------------------------------------
-Tensor *tensor_new(int rows, int cols, int rank) {
+Tensor *tensor_new(uint32_t rows, uint32_t cols, uint32_t rank) {
   Tensor *t = malloc(sizeof(Tensor));
 
   if (t == NULL) {
@@ -449,12 +449,12 @@ Tensor *tensor_new(int rows, int cols, int rank) {
     return NULL;
   }
 
-  for (int i = 0; i < rank; i++) {
+  for (uint32_t i = 0; i < rank; i++) {
     t->data[i] = malloc(sizeof *t->data[i] * rows);
   }
 
-  for (int i = 0; i < rank; i++) {
-    for (int j = 0; j < rows; j++) {
+  for (uint32_t i = 0; i < rank; i++) {
+    for (uint32_t j = 0; j < rows; j++) {
       t->data[i][j] = malloc(sizeof *t->data[i][j] * cols);
     }
   }
@@ -462,7 +462,7 @@ Tensor *tensor_new(int rows, int cols, int rank) {
   return t;
 }
 
-void tensor_insert(Tensor *t, Matrix *m, int index) {
+void tensor_insert(Tensor *t, Matrix *m, uint32_t index) {
   if (index >= t->rank) {
     fprintf(stderr, "tensor_insert: index out of bounds");
     return;
@@ -473,21 +473,21 @@ void tensor_insert(Tensor *t, Matrix *m, int index) {
     return;
   }
 
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
+  for (uint32_t i = 0; i < t->rows; i++) {
+    for (uint32_t j = 0; j < t->cols; j++) {
       t->data[index][i][j] = m->data[i][j];
     }
   }
 }
 
 void tensor_free(Tensor *t) {
-  for (int i = 0; i < t->rank; i++) {
-    for (int j = 0; j < t->rows; j++) {
+  for (uint32_t i = 0; i < t->rank; i++) {
+    for (uint32_t j = 0; j < t->rows; j++) {
       free(t->data[i][j]);
     }
   }
 
-  for (int i = 0; i < t->rank; i++) {
+  for (uint32_t i = 0; i < t->rank; i++) {
     free(t->data[i]);
   }
 
@@ -498,9 +498,9 @@ void tensor_free(Tensor *t) {
 Tensor *tensor_copy(Tensor *src) {
   Tensor *dest = tensor_new(src->rows, src->cols, src->rank);
 
-  for (int i = 0; i < src->rank; i++) {
-    for (int j = 0; j < src->rows; j++) {
-      for (int k = 0; k < src->cols; k++) {
+  for (uint32_t i = 0; i < src->rank; i++) {
+    for (uint32_t j = 0; j < src->rows; j++) {
+      for (uint32_t k = 0; k < src->cols; k++) {
         dest->data[i][j][k] = src->data[i][j][k];
       }
     }
@@ -510,10 +510,10 @@ Tensor *tensor_copy(Tensor *src) {
 }
 
 void tensor_print(Tensor *t) {
-  for (int i = 0; i < t->rank; i++) {
+  for (uint32_t i = 0; i < t->rank; i++) {
     printf("Matrix %d\n", i);
-    for (int j = 0; j < t->rows; j++) {
-      for (int k = 0; k < t->cols; k++) {
+    for (uint32_t j = 0; j < t->rows; j++) {
+      for (uint32_t k = 0; k < t->cols; k++) {
         printf("%f ", t->data[i][j][k]);
       }
       printf("\n");
@@ -534,9 +534,9 @@ Tensor *tensor_add(Tensor *t1, Tensor *t2) {
     return NULL;
   }
 
-  for (int i = 0; i < t1->rank; i++) {
-    for (int j = 0; j < t1->rows; j++) {
-      for (int k = 0; k < t1->cols; k++) {
+  for (uint32_t i = 0; i < t1->rank; i++) {
+    for (uint32_t j = 0; j < t1->rows; j++) {
+      for (uint32_t k = 0; k < t1->cols; k++) {
         result->data[i][j][k] = t1->data[i][j][k] + t2->data[i][j][k];
       }
     }
@@ -557,9 +557,9 @@ Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
     return NULL;
   }
 
-  for (int i = 0; i < t1->rank; i++) {
-    for (int j = 0; j < t1->rows; j++) {
-      for (int k = 0; k < t1->cols; k++) {
+  for (uint32_t i = 0; i < t1->rank; i++) {
+    for (uint32_t j = 0; j < t1->rows; j++) {
+      for (uint32_t k = 0; k < t1->cols; k++) {
         result->data[i][j][k] = t1->data[i][j][k] - t2->data[i][j][k];
       }
     }
@@ -575,7 +575,7 @@ Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
 //     return NULL;
 //   }
 //
-//   for (int i = 0; i < t->rank; i++) {
+//   for (uint32_t i = 0; i < t->rank; i++) {
 //     Matrix *temp;
 //     temp = matrix_scale(&(t->data[i]), scale);
 //
@@ -604,7 +604,7 @@ Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
 //     return NULL;
 //   }
 //
-//   for (int i = 0; i < t1->rank; i++) {
+//   for (uint32_t i = 0; i < t1->rank; i++) {
 //     Matrix *temp;
 //     temp = matrix_dot(&(t1->data[i]), &(t2->data[i]));
 //     if (temp == NULL) {
@@ -630,7 +630,7 @@ Tensor *tensor_sub(Tensor *t1, Tensor *t2) {
 //     return NULL;
 //   }
 //
-//   for (int i = 0; i < t1->rank; i++) {
+//   for (uint32_t i = 0; i < t1->rank; i++) {
 //     Matrix *temp;
 //     temp = matrix_multiply(&(t1->data[i]), &(t2->data[i]));
 //     if (temp == NULL) {

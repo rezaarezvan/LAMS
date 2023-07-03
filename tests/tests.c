@@ -1,4 +1,5 @@
 #include "../src/linear_algebra.h"
+#include "../src/stats.h"
 
 // Unit tests
 // -----------------------------------------------------------------------------
@@ -28,7 +29,7 @@ void test_vector_from_array() {
   assert(v != NULL);
   assert(v->size == 3);
 
-  for (int i = 0; i < v->size; i++) {
+  for (uint32_t i = 0; i < v->size; i++) {
     assert(v->data[i] == data[i]);
   }
 
@@ -37,7 +38,7 @@ void test_vector_from_array() {
 
 void test_vector_copy() {
   double data[] = {1.0, 2.0, 3.0};
-  int size = 3;
+  uint32_t size = 3;
 
   Vector *v = vector_from_array(size, data);
   Vector *copy = vector_copy(v);
@@ -45,7 +46,7 @@ void test_vector_copy() {
   assert(copy != NULL);
   assert(copy->size == size);
 
-  for (int i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     assert(copy->data[i] == v->data[i]);
   }
 
@@ -56,7 +57,7 @@ void test_vector_copy() {
 void test_vector_add() {
   double data1[] = {1.0, 2.0, 3.0};
   double data2[] = {4.0, 5.0, 6.0};
-  int size = 3;
+  uint32_t size = 3;
 
   Vector *v1 = vector_from_array(size, data1);
   Vector *v2 = vector_from_array(size, data2);
@@ -64,7 +65,7 @@ void test_vector_add() {
 
   assert(v3 != NULL);
   assert(v3->size == 3);
-  for (int i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     assert(v3->data[i] == v1->data[i] + v2->data[i]);
   }
   vector_free(v1);
@@ -75,7 +76,7 @@ void test_vector_add() {
 void test_vector_subtract() {
   double data1[] = {1.0, 2.0, 3.0};
   double data2[] = {4.0, 5.0, 6.0};
-  int size = 3;
+  uint32_t size = 3;
 
   Vector *v1 = vector_from_array(size, data1);
   Vector *v2 = vector_from_array(size, data2);
@@ -84,7 +85,7 @@ void test_vector_subtract() {
   assert(v3 != NULL);
   assert(v3->size == 3);
 
-  for (int i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     assert(v3->data[i] == v1->data[i] - v2->data[i]);
   }
 
@@ -95,8 +96,8 @@ void test_vector_subtract() {
 
 void test_vector_scale() {
   double data[] = {1.0, 2.0, 3.0};
-  int size = 3;
-  int scale = 2;
+  uint32_t size = 3;
+  uint32_t scale = 2;
 
   Vector *v = vector_from_array(size, data);
   Vector *v2 = vector_scale(v, scale);
@@ -104,7 +105,7 @@ void test_vector_scale() {
   assert(v2 != NULL);
   assert(v2->size == 3);
 
-  for (int i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     assert(v2->data[i] == v->data[i] * scale);
   }
   vector_free(v);
@@ -393,7 +394,7 @@ void test_matrix_fill() {
 void test_matrix_set() {
   Matrix *m = matrix_new(2, 3);
   double data[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-  int size = 2 * 3;
+  uint32_t size = 2 * 3;
   matrix_set(m, data, size);
   assert(m->data[0][0] == 1.0);
   assert(m->data[0][1] == 2.0);
@@ -422,7 +423,7 @@ void test_tensor_new() {
   Tensor *t = tensor_new(1, 1, 1);
   assert(t != NULL);
   assert(t->data != NULL);
-  for (int i = 0; i < t->rank; i++) {
+  for (uint32_t i = 0; i < t->rank; i++) {
     assert(&(t->data[i]) != NULL);
   }
   assert(t->rows == 1);
@@ -442,8 +443,8 @@ void test_tensor_insert() {
   matrix_fill(m, 1);
   tensor_insert(t, m, 0);
 
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
+  for (uint32_t i = 0; i < t->rows; i++) {
+    for (uint32_t j = 0; j < t->cols; j++) {
       assert(t->data[0][i][j] == 1);
     }
   }
@@ -459,8 +460,8 @@ void test_tensor_copy() {
   tensor_insert(t, m, 0);
   Tensor *t2 = tensor_copy(t);
 
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
+  for (uint32_t i = 0; i < t->rows; i++) {
+    for (uint32_t j = 0; j < t->cols; j++) {
       assert(t2->data[0][i][j] == 1);
     }
   }
@@ -477,8 +478,8 @@ void test_tensor_add() {
   tensor_insert(t, m, 0);
   Tensor *t2 = tensor_copy(t);
   Tensor *t3 = tensor_add(t, t2);
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
+  for (uint32_t i = 0; i < t->rows; i++) {
+    for (uint32_t j = 0; j < t->cols; j++) {
       assert(t3->data[0][i][j] == 2);
     }
   }
@@ -495,8 +496,8 @@ void test_tensor_sub() {
   tensor_insert(t, m, 0);
   Tensor *t2 = tensor_copy(t);
   Tensor *t3 = tensor_sub(t, t2);
-  for (int i = 0; i < t->rows; i++) {
-    for (int j = 0; j < t->cols; j++) {
+  for (uint32_t i = 0; i < t->rows; i++) {
+    for (uint32_t j = 0; j < t->cols; j++) {
       assert(t3->data[0][i][j] == 0);
     }
   }
