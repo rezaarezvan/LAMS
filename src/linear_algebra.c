@@ -6,7 +6,7 @@
 Vector *vector_new(int n) {
   Vector *v = malloc(sizeof(Vector));
   v->size = n;
-  v->data = malloc(n * sizeof(double));
+  v->data = malloc(sizeof *v->data * n);
   return v;
 }
 
@@ -165,7 +165,7 @@ Vector *vector_from_array(int size, double array[]) {
 }
 
 double *vector_to_array(Vector *v) {
-  double *result = malloc(sizeof(double) * v->size);
+  double *result = malloc(v->size * sizeof *result);
 
   for (int i = 0; i < v->size; i++) {
     result[i] = v->data[i];
@@ -177,7 +177,7 @@ double *vector_to_array(Vector *v) {
 // Matrix functions
 // -----------------------------------------------------------------------------
 Matrix *matrix_new(int rows, int cols) {
-  Matrix *result = (Matrix *)malloc(sizeof(Matrix));
+  Matrix *result = malloc(sizeof(Matrix));
 
   if (result == NULL) {
     fprintf(stderr, "Error: matrix_new() failed to allocate memory");
@@ -187,14 +187,14 @@ Matrix *matrix_new(int rows, int cols) {
   result->rows = rows;
   result->cols = cols;
 
-  result->data = (double **)malloc(rows * sizeof(double *));
+  result->data = malloc(sizeof *result->data * rows);
   if (result->data == NULL) {
     fprintf(stderr, "Error: matrix_new() failed to allocate memory");
     return NULL;
   }
 
   for (int i = 0; i < rows; i++) {
-    result->data[i] = (double *)malloc(cols * sizeof(double));
+    result->data[i] = malloc(sizeof *result->data[i] * cols);
     if (result->data[i] == NULL) {
       fprintf(stderr,
               "Error: matrix_new() failed to allocate memory for row %d\n", i);
@@ -432,7 +432,7 @@ Matrix *matrix_identity(int size) {
 // Tensor functions
 // -----------------------------------------------------------------------------
 Tensor *tensor_new(int rows, int cols, int rank) {
-  Tensor *t = (Tensor *)malloc(sizeof(Tensor));
+  Tensor *t = malloc(sizeof(Tensor));
 
   if (t == NULL) {
     fprintf(stderr, "tensor_new: failed to allocate memory");
@@ -443,19 +443,19 @@ Tensor *tensor_new(int rows, int cols, int rank) {
   t->cols = cols;
   t->rank = rank;
 
-  t->data = (double ***)malloc(rank * sizeof(double **));
+  t->data = malloc(sizeof *t->data * rank);
   if (t->data == NULL) {
     fprintf(stderr, "tensor_new: failed to allocate memory");
     return NULL;
   }
 
   for (int i = 0; i < rank; i++) {
-    t->data[i] = (double **)malloc(rows * sizeof(double *));
+    t->data[i] = malloc(sizeof *t->data[i] * rows);
   }
 
   for (int i = 0; i < rank; i++) {
     for (int j = 0; j < rows; j++) {
-      t->data[i][j] = (double *)malloc(cols * sizeof(double));
+      t->data[i][j] = malloc(sizeof *t->data[i][j] * cols);
     }
   }
 
