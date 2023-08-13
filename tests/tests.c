@@ -507,6 +507,15 @@ void test_tensor_sub() {
   matrix_free(m);
 }
 
+// Stats tests
+// -----------------------------------------------------------------------------
+
+void test_binomial_new() {
+  binomial_t b = {10, 0.5};
+  assert(b.n == 10);
+  assert(b.p == 0.5);
+}
+
 int main() {
   test_vector_new();
   printf("test_vector_new passed\n");
@@ -574,4 +583,9 @@ int main() {
   printf("test_tensor_sub passed\n");
 
   printf("\nAll Tensor tests passed\n\n");
+
+  test_binomial_new();
+  printf("test_binomial_new passed\n");
+
+  printf("\nAll Stats tests passed\n\n");
 }
