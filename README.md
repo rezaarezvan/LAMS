@@ -4,5 +4,5 @@ This is purely for me to play around and see if I'm capable to implement hard ma
 
 ## Running tests
 ```
-make && ./output
+make run
 ```
