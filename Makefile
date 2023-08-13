@@ -12,7 +12,7 @@ $(OUTPUT): $(TEST_SRC) src/linear_algebra.c src/stats.c
 	$(CC) $(CFLAGS) -o $(OUTPUT) $(TEST_SRC) src/linear_algebra.c src/stats.c
 
 # Run the tests
-test: $(OUTPUT)
+run: $(OUTPUT)
 	./$(OUTPUT)
 
 # Clean up the output file
