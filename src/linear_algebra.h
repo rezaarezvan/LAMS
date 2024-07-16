@@ -1,5 +1,9 @@
-#ifndef LA_H
-#define LA_H
+#ifndef LINEAR_ALGEBRA_H
+#define LINEAR_ALGEBRA_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <assert.h>
 #include <math.h>
@@ -81,4 +85,8 @@ Tensor *tensor_dot(Tensor *t1, Tensor *t2);
 Tensor *tensor_multiply(Tensor *t1, Tensor *t2);
 Tensor *tensor_transpose(Tensor *t);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // LINEAR_ALGEBRA_H
