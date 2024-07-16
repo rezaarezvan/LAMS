@@ -1,20 +1,39 @@
-# Define variables
+NVCC = nvcc
 CC = gcc
-CFLAGS = -W -lm -fsanitize=address -static-libasan -g
+NVCCFLAGS = -O3 -arch=sm_60  # Adjust the architecture flag as needed
+CFLAGS = -O3 -fPIC
+
+CPU_SRC = src/linear_algebra.c src/stats.c
+CUDA_SRC = src/cuda_linear_algebra.cu
 TEST_SRC = tests/tests.c
-OUTPUT = output
+CUDA_TEST_SRC = tests/cuda_tests.cu
 
-# Default target
-all: $(OUTPUT)
+CPU_OUTPUT = output_cpu
+CUDA_OUTPUT = output_cuda
+CPU_LIB = libcpucode.a
 
-# Compile the tests
-$(OUTPUT): $(TEST_SRC) src/linear_algebra.c src/stats.c
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(TEST_SRC) src/linear_algebra.c src/stats.c
+all: $(CPU_OUTPUT) $(CUDA_OUTPUT)
 
-# Run the tests
-run: $(OUTPUT)
-	./$(OUTPUT)
+$(CPU_OUTPUT): $(TEST_SRC) $(CPU_LIB)
+	$(CC) $(CFLAGS) -o $(CPU_OUTPUT) $(TEST_SRC) -L. -lcpucode -lm
 
-# Clean up the output file
+$(CUDA_OUTPUT): $(CUDA_SRC) $(CUDA_TEST_SRC) $(CPU_LIB)
+	$(NVCC) $(NVCCFLAGS) -o $(CUDA_OUTPUT) $(CUDA_SRC) $(CUDA_TEST_SRC) -L. -lcpucode -lcudart
+
+$(CPU_LIB): $(CPU_SRC)
+	$(CC) $(CFLAGS) -c $(CPU_SRC)
+	ar rcs $(CPU_LIB) *.o
+	rm *.o
+
+run_cpu: $(CPU_OUTPUT)
+	./$(CPU_OUTPUT)
+
+run_gpu: $(CUDA_OUTPUT)
+	./$(CUDA_OUTPUT)
+
+run: run_cpu run_gpu
+
 clean:
-	rm -f $(OUTPUT)
+	rm -f $(CPU_OUTPUT) $(CUDA_OUTPUT) $(CPU_LIB) *.o
+
+.PHONY: all run_cpu run_gpu run clean
